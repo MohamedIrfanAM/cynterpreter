@@ -17,8 +17,10 @@ func main() {
 
 		var l = lexer.New(scanner.Text())
 
-		token := l.NextToken()
-		fmt.Println("Token = ", token.TokenType)
+		for i := range scanner.Text() {
+			token := l.NextToken()
+			fmt.Println(i+1, " - Token = ", token.TokenType)
+		}
 
 		fmt.Print(">> ")
 	}
