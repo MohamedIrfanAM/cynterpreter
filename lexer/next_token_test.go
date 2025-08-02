@@ -95,3 +95,88 @@ func TestOperatorTokens(t *testing.T) {
 		}
 	}
 }
+
+func TestKeywordTokens(t *testing.T) {
+	var input = `auto break case char const continue default do double else enum extern float for goto if inline int long register restrict return short signed sizeof static struct switch typedef union unsigned void volatile while`
+
+	expectedTokens := []token.Token{
+		{TokenType: token.AUTO, Lexeme: "auto"},
+		{TokenType: token.BREAK, Lexeme: "break"},
+		{TokenType: token.CASE, Lexeme: "case"},
+		{TokenType: token.CHAR, Lexeme: "char"},
+		{TokenType: token.CONST, Lexeme: "const"},
+		{TokenType: token.CONTINUE, Lexeme: "continue"},
+		{TokenType: token.DEFAULT, Lexeme: "default"},
+		{TokenType: token.DO, Lexeme: "do"},
+		{TokenType: token.DOUBLE, Lexeme: "double"},
+		{TokenType: token.ELSE, Lexeme: "else"},
+		{TokenType: token.ENUM, Lexeme: "enum"},
+		{TokenType: token.EXTERN, Lexeme: "extern"},
+		{TokenType: token.FLOAT, Lexeme: "float"},
+		{TokenType: token.FOR, Lexeme: "for"},
+		{TokenType: token.GOTO, Lexeme: "goto"},
+		{TokenType: token.IF, Lexeme: "if"},
+		{TokenType: token.INLINE, Lexeme: "inline"},
+		{TokenType: token.INT, Lexeme: "int"},
+		{TokenType: token.LONG, Lexeme: "long"},
+		{TokenType: token.REGISTER, Lexeme: "register"},
+		{TokenType: token.RESTRICT, Lexeme: "restrict"},
+		{TokenType: token.RETURN, Lexeme: "return"},
+		{TokenType: token.SHORT, Lexeme: "short"},
+		{TokenType: token.SIGNED, Lexeme: "signed"},
+		{TokenType: token.SIZEOF, Lexeme: "sizeof"},
+		{TokenType: token.STATIC, Lexeme: "static"},
+		{TokenType: token.STRUCT, Lexeme: "struct"},
+		{TokenType: token.SWITCH, Lexeme: "switch"},
+		{TokenType: token.TYPEDEF, Lexeme: "typedef"},
+		{TokenType: token.UNION, Lexeme: "union"},
+		{TokenType: token.UNSIGNED, Lexeme: "unsigned"},
+		{TokenType: token.VOID, Lexeme: "void"},
+		{TokenType: token.VOLATILE, Lexeme: "volatile"},
+		{TokenType: token.WHILE, Lexeme: "while"},
+		{TokenType: token.EOF, Lexeme: ""},
+	}
+
+	var l = New(input)
+
+	for i, expectedToken := range expectedTokens {
+		var tkn token.Token = l.NextToken()
+
+		if tkn.TokenType != expectedToken.TokenType {
+			t.Errorf("[%d] - Wrong TokenType, Expected - %s, got - %s", i, tkn.TokenType, expectedToken.TokenType)
+		}
+
+		if tkn.Lexeme != expectedToken.Lexeme {
+			t.Fatalf("[%d] - Wrong Lexeme, Expected - %s, got - %s", i, tkn.Lexeme, expectedToken.Lexeme)
+		}
+	}
+}
+
+func TestIdentifierTokens(t *testing.T) {
+	var input = `variable_name myFunction _underscore identifier123 main argc argv`
+
+	expectedTokens := []token.Token{
+		{TokenType: token.IDENTIFIER, Lexeme: "variable_name"},
+		{TokenType: token.IDENTIFIER, Lexeme: "myFunction"},
+		{TokenType: token.IDENTIFIER, Lexeme: "_underscore"},
+		{TokenType: token.IDENTIFIER, Lexeme: "identifier123"},
+		{TokenType: token.IDENTIFIER, Lexeme: "main"},
+		{TokenType: token.IDENTIFIER, Lexeme: "argc"},
+		{TokenType: token.IDENTIFIER, Lexeme: "argv"},
+		{TokenType: token.EOF, Lexeme: ""},
+	}
+
+	var l = New(input)
+
+	for i, expectedToken := range expectedTokens {
+		var tkn token.Token = l.NextToken()
+
+		if tkn.TokenType != expectedToken.TokenType {
+			t.Errorf("[%d] - Wrong TokenType, Expected - %s, got - %s", i, tkn.TokenType, expectedToken.TokenType)
+		}
+
+		if tkn.Lexeme != expectedToken.Lexeme {
+			t.Fatalf("[%d] - Wrong Lexeme, Expected - %s, got - %s", i, tkn.Lexeme, expectedToken.Lexeme)
+		}
+	}
+}

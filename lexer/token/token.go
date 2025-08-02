@@ -183,3 +183,7 @@ func IsDigit(ch byte) bool {
 func IsWordSymbol(ch byte) bool {
 	return IsLetter(ch) || IsDigit(ch) || ch == '_'
 }
+
+func IsWordStartSymbol(ch byte) bool {
+	return IsLetter(ch) || ch == '_'
+}

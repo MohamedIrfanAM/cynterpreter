@@ -54,7 +54,7 @@ func (l *Lexer) NextToken() token.Token {
 	}
 
 	// Check if it's a keyword or identifier
-	if token.IsLetter(l.ch) {
+	if token.IsWordStartSymbol(l.ch) {
 		word := l.readWord()
 
 		tkn, found = token.GetKeywordToken(word)
