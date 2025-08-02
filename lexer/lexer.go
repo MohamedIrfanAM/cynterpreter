@@ -53,8 +53,15 @@ func (l *Lexer) NextToken() token.Token {
 
 func (l *Lexer) readOperator() string {
 	position := l.position
-	for isOperatorSymbol(l.ch) {
+	for isOperatorSymbol(l.peekChar()) {
 		l.readChar()
 	}
 	return l.input[position:l.pointer]
+}
+
+func (l *Lexer) peekChar() byte {
+	if l.pointer >= len(l.input) {
+		return 0
+	}
+	return l.input[l.pointer]
 }
