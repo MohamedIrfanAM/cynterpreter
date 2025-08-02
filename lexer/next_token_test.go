@@ -30,11 +30,11 @@ func TestPunctuatorTokens(t *testing.T) {
 		var tkn token.Token = l.NextToken()
 
 		if tkn.TokenType != expectedToken.TokenType {
-			t.Errorf("[%d] - Wrong TokenType, Expected - %s, got - %s", i, tkn.TokenType, expectedToken.TokenType)
+			t.Errorf("[%d] - Wrong TokenType, Expected - %s, got - %s", i, expectedToken.TokenType, tkn.TokenType)
 		}
 
 		if tkn.Lexeme != expectedToken.Lexeme {
-			t.Fatalf("[%d] - Wrong Lexeme, Expected - %s, got - %s", i, tkn.Lexeme, expectedToken.Lexeme)
+			t.Fatalf("[%d] - Wrong Lexeme, Expected - %s, got - %s", i, expectedToken.Lexeme, tkn.Lexeme)
 		}
 	}
 }
@@ -87,11 +87,11 @@ func TestOperatorTokens(t *testing.T) {
 		var tkn token.Token = l.NextToken()
 
 		if tkn.TokenType != expectedToken.TokenType {
-			t.Errorf("[%d] - Wrong TokenType, Expected - %s, got - %s", i, tkn.TokenType, expectedToken.TokenType)
+			t.Errorf("[%d] - Wrong TokenType, Expected - %s, got - %s", i, expectedToken.TokenType, tkn.TokenType)
 		}
 
 		if tkn.Lexeme != expectedToken.Lexeme {
-			t.Fatalf("[%d] - Wrong Lexeme, Expected - %s, got - %s", i, tkn.Lexeme, expectedToken.Lexeme)
+			t.Fatalf("[%d] - Wrong Lexeme, Expected - %s, got - %s", i, expectedToken.Lexeme, tkn.Lexeme)
 		}
 	}
 }
@@ -143,11 +143,11 @@ func TestKeywordTokens(t *testing.T) {
 		var tkn token.Token = l.NextToken()
 
 		if tkn.TokenType != expectedToken.TokenType {
-			t.Errorf("[%d] - Wrong TokenType, Expected - %s, got - %s", i, tkn.TokenType, expectedToken.TokenType)
+			t.Errorf("[%d] - Wrong TokenType, Expected - %s, got - %s", i, expectedToken.TokenType, tkn.TokenType)
 		}
 
 		if tkn.Lexeme != expectedToken.Lexeme {
-			t.Fatalf("[%d] - Wrong Lexeme, Expected - %s, got - %s", i, tkn.Lexeme, expectedToken.Lexeme)
+			t.Fatalf("[%d] - Wrong Lexeme, Expected - %s, got - %s", i, expectedToken.Lexeme, tkn.Lexeme)
 		}
 	}
 }
@@ -172,11 +172,43 @@ func TestIdentifierTokens(t *testing.T) {
 		var tkn token.Token = l.NextToken()
 
 		if tkn.TokenType != expectedToken.TokenType {
-			t.Errorf("[%d] - Wrong TokenType, Expected - %s, got - %s", i, tkn.TokenType, expectedToken.TokenType)
+			t.Errorf("[%d] - Wrong TokenType, Expected - %s, got - %s", i, expectedToken.TokenType, tkn.TokenType)
 		}
 
 		if tkn.Lexeme != expectedToken.Lexeme {
-			t.Fatalf("[%d] - Wrong Lexeme, Expected - %s, got - %s", i, tkn.Lexeme, expectedToken.Lexeme)
+			t.Fatalf("[%d] - Wrong Lexeme, Expected - %s, got - %s", i, expectedToken.Lexeme, tkn.Lexeme)
+		}
+	}
+}
+
+func TestLiterals(t *testing.T) {
+	var input = `42 123 3.14 2.5f 'a' 'Z' '\n' "hello" "world" "hello world"`
+
+	expectedTokens := []token.Token{
+		{TokenType: token.INT_LITERAL, Lexeme: "42"},
+		{TokenType: token.INT_LITERAL, Lexeme: "123"},
+		{TokenType: token.FLOAT_LITERAL, Lexeme: "3.14"},
+		{TokenType: token.FLOAT_LITERAL, Lexeme: "2.5f"},
+		{TokenType: token.CHAR_LITERAL, Lexeme: "'a'"},
+		{TokenType: token.CHAR_LITERAL, Lexeme: "'Z'"},
+		{TokenType: token.CHAR_LITERAL, Lexeme: "'\\n'"},
+		{TokenType: token.STRING_LITERAL, Lexeme: "\"hello\""},
+		{TokenType: token.STRING_LITERAL, Lexeme: "\"world\""},
+		{TokenType: token.STRING_LITERAL, Lexeme: "\"hello world\""},
+		{TokenType: token.EOF, Lexeme: ""},
+	}
+
+	var l = New(input)
+
+	for i, expectedToken := range expectedTokens {
+		var tkn token.Token = l.NextToken()
+
+		if tkn.TokenType != expectedToken.TokenType {
+			t.Errorf("[%d] - Wrong TokenType, Expected - %s, got - %s", i, expectedToken.TokenType, tkn.TokenType)
+		}
+
+		if tkn.Lexeme != expectedToken.Lexeme {
+			t.Errorf("[%d] - Wrong Lexeme, Expected - %s, got - %s", i, expectedToken.Lexeme, tkn.Lexeme)
 		}
 	}
 }
