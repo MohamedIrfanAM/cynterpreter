@@ -172,7 +172,8 @@ func GetNumberToken(num string) Token {
 }
 
 func GetCharToken(char string) Token {
-	if len(char) == 1 {
+	c := char[1 : len(char)-1]
+	if (char[0] == '\'' && char[len(char)-1] == '\'') && len(c) == 1 || (len(c) == 2 && c[0] == '\\') {
 		return Token{
 			TokenType: CHAR_LITERAL,
 			Lexeme:    char,
@@ -182,10 +183,13 @@ func GetCharToken(char string) Token {
 }
 
 func GetStringToken(str string) Token {
-	return Token{
-		TokenType: STRING_LITERAL,
-		Lexeme:    str,
+	if str[0] == '"' && str[len(str)-1] == '"' {
+		return Token{
+			TokenType: STRING_LITERAL,
+			Lexeme:    str,
+		}
 	}
+	return Token{TokenType: ILLEGAL}
 }
 
 func IsOperatorSymbol(ch byte) bool {

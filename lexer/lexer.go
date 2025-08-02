@@ -110,24 +110,36 @@ func (l *Lexer) readNumber() string {
 }
 
 func (l *Lexer) readCharLiteral() string {
-	l.readChar()
 	position := l.position
-	for l.peekChar() != '\'' {
-		l.readChar()
-	}
-	char := l.input[position:l.pointer]
 	l.readChar()
+	var escaped = false
+	for ; l.ch != '\'' && l.ch != 0; l.readChar() {
+		if l.ch == '\\' && !escaped {
+			l.readChar()
+			escaped = true
+		} else {
+			escaped = false
+		}
+	}
+	l.readChar()
+	char := l.input[position:l.pointer]
 	return char
 }
 
 func (l *Lexer) readStringLiteral() string {
-	l.readChar()
 	position := l.position
-	for l.peekChar() != '"' {
-		l.readChar()
-	}
-	str := l.input[position:l.pointer]
 	l.readChar()
+	var escaped = false
+	for ; l.ch != '"' && l.ch != 0; l.readChar() {
+		if l.ch == '\\' && !escaped {
+			l.readChar()
+			escaped = true
+		} else {
+			escaped = false
+		}
+	}
+	l.readChar()
+	str := l.input[position:l.pointer]
 	return str
 }
 
