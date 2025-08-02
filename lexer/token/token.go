@@ -58,7 +58,48 @@ const (
 	PIPEEQ    TokenType = 45 // |=
 	LSHIFTEQ  TokenType = 46 // <<=
 	RSHIFTEQ  TokenType = 47 // >>=
-	SIZEOF    TokenType = 48 // sizeof
+	//Keywords
+	AUTO     TokenType = 48 // auto
+	BREAK    TokenType = 49 // break
+	CASE     TokenType = 50 // case
+	CHAR     TokenType = 51 // char
+	CONST    TokenType = 52 // const
+	CONTINUE TokenType = 53 // continue
+	DEFAULT  TokenType = 54 // default
+	DO       TokenType = 55 // do
+	DOUBLE   TokenType = 56 // double
+	ELSE     TokenType = 57 // else
+	ENUM     TokenType = 58 // enum
+	EXTERN   TokenType = 59 // extern
+	FLOAT    TokenType = 60 // float
+	FOR      TokenType = 61 // for
+	GOTO     TokenType = 62 // goto
+	IF       TokenType = 63 // if
+	INLINE   TokenType = 64 // inline
+	INT      TokenType = 65 // int
+	LONG     TokenType = 66 // long
+	REGISTER TokenType = 67 // register
+	RESTRICT TokenType = 68 // restrict
+	RETURN   TokenType = 69 // return
+	SHORT    TokenType = 70 // short
+	SIGNED   TokenType = 71 // signed
+	SIZEOF   TokenType = 72 // sizeof
+	STATIC   TokenType = 73 // static
+	STRUCT   TokenType = 74 // struct
+	SWITCH   TokenType = 75 // switch
+	TYPEDEF  TokenType = 76 // typedef
+	UNION    TokenType = 77 // union
+	UNSIGNED TokenType = 78 // unsigned
+	VOID     TokenType = 79 // void
+	VOLATILE TokenType = 80 // volatile
+	WHILE    TokenType = 81 // while
+
+	// Identifiers and Literals
+	IDENTIFIER     TokenType = 92 // user-defined names
+	INT_LITERAL    TokenType = 93 // integer constants
+	FLOAT_LITERAL  TokenType = 94 // floating-point constants
+	CHAR_LITERAL   TokenType = 95 // character constants
+	STRING_LITERAL TokenType = 96 // string literals
 )
 
 func (t TokenType) String() string {
@@ -95,6 +136,24 @@ func GetOperatorToken(op string) (Token, bool) {
 	return Token{}, ok
 }
 
+func GetKeywordToken(word string) (Token, bool) {
+	tokenType, ok := KeywordMap[word]
+	if ok {
+		return Token{
+			TokenType: tokenType,
+			Lexeme:    word,
+		}, ok
+	}
+	return Token{}, ok
+}
+
+func GetIdentifierToken(word string) Token {
+	return Token{
+		TokenType: IDENTIFIER,
+		Lexeme:    word,
+	}
+}
+
 func IsOperatorSymbol(ch byte) bool {
 	for _, v := range OpSymbols {
 		if v == ch {
@@ -111,4 +170,16 @@ func IsWhiteSpace(ch byte) bool {
 		}
 	}
 	return false
+}
+
+func IsLetter(ch byte) bool {
+	return ch >= 'a' && ch <= 'z' || ch >= 'A' && ch <= 'Z'
+}
+
+func IsDigit(ch byte) bool {
+	return ch >= '0' && ch <= '9'
+}
+
+func IsWordSymbol(ch byte) bool {
+	return IsLetter(ch) || IsDigit(ch) || ch == '_'
 }

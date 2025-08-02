@@ -53,12 +53,32 @@ func (l *Lexer) NextToken() token.Token {
 		}
 	}
 
+	// Check if it's a keyword or identifier
+	if token.IsLetter(l.ch) {
+		word := l.readWord()
+
+		tkn, found = token.GetKeywordToken(word)
+		if found {
+			return tkn
+		}
+
+		return token.GetIdentifierToken(word)
+	}
+
 	return token.GetIllegalToken()
 }
 
 func (l *Lexer) readOperator() string {
 	position := l.position
 	for token.IsOperatorSymbol(l.peekChar()) {
+		l.readChar()
+	}
+	return l.input[position:l.pointer]
+}
+
+func (l *Lexer) readWord() string {
+	position := l.position
+	for token.IsWordSymbol(l.peekChar()) {
 		l.readChar()
 	}
 	return l.input[position:l.pointer]
