@@ -8,7 +8,8 @@ type Token struct {
 }
 
 const (
-	ILLEGAL TokenType = 0
+	EOF     TokenType = 0
+	ILLEGAL TokenType = 13
 	// Punctuators
 	LPAREN  TokenType = 1  // (
 	RPAREN  TokenType = 2  // )
@@ -62,6 +63,14 @@ const (
 
 func (t TokenType) String() string {
 	return TokenMap[t]
+}
+
+func GetEofToken() Token {
+	return Token{EOF, ""}
+}
+
+func GetIllegalToken() Token {
+	return Token{ILLEGAL, ""}
 }
 
 func GetPunctuatorToken(ch byte) (Token, bool) {

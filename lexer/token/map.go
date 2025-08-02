@@ -1,7 +1,8 @@
 package token
 
 var TokenMap map[TokenType]string = map[TokenType]string{
-	0:  "ILLEGAL",
+	0:  "EOF",
+	13: "ILLEGAL",
 	1:  "LPAREN",
 	2:  "RPAREN",
 	3:  "LBRACK",

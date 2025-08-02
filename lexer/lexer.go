@@ -33,6 +33,10 @@ func (l *Lexer) readChar() {
 func (l *Lexer) NextToken() token.Token {
 	l.readChar()
 
+	if l.ch == 0 {
+		return token.GetEofToken()
+	}
+
 	// Check if it's a punctuator
 	tkn, found := token.GetPunctuatorToken(l.ch)
 	if found {
@@ -48,7 +52,7 @@ func (l *Lexer) NextToken() token.Token {
 		}
 	}
 
-	return tkn
+	return token.GetIllegalToken()
 }
 
 func (l *Lexer) readOperator() string {
