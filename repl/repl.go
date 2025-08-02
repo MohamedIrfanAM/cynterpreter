@@ -19,7 +19,7 @@ func REPL(in io.Reader, out io.Writer) {
 		var l = lexer.New(scanner.Text())
 
 		for tkn := l.NextToken(); tkn.TokenType != token.EOF; tkn = l.NextToken() {
-			fmt.Fprintln(out, "Token = ", tkn.TokenType)
+			fmt.Fprintln(out, "Token = ", tkn.TokenType, ", Lexeme = ", tkn.Lexeme)
 		}
 
 		fmt.Fprint(out, ">> ")
