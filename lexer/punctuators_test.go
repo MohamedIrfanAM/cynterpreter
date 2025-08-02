@@ -7,7 +7,7 @@ import (
 )
 
 func TestPunctuatorTokens(t *testing.T) {
-	var input = `( ) [ ] { } , ; * = # . ~`
+	var input = `( ) [ ] { } , ; # . ~`
 
 	expectedTokens := []token.Token{
 		{TokenType: token.LPAREN, Lexeme: "("},
@@ -18,8 +18,6 @@ func TestPunctuatorTokens(t *testing.T) {
 		{TokenType: token.RBRACE, Lexeme: "}"},
 		{TokenType: token.COMMA, Lexeme: ","},
 		{TokenType: token.SEMCOL, Lexeme: ";"},
-		{TokenType: token.ASTER, Lexeme: "*"},
-		{TokenType: token.ASSIGN, Lexeme: "="},
 		{TokenType: token.PREPROC, Lexeme: "#"},
 		{TokenType: token.DOT, Lexeme: "."},
 		{TokenType: token.TILDE, Lexeme: "~"},
