@@ -101,3 +101,12 @@ func IsOperatorSymbol(ch byte) bool {
 	}
 	return false
 }
+
+func IsWhiteSpace(ch byte) bool {
+	for _, v := range WhiteSpaceSymbols {
+		if ch == v {
+			return true
+		}
+	}
+	return false
+}

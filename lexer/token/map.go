@@ -107,3 +107,7 @@ var OperatorMap map[string]TokenType = map[string]TokenType{
 var OpSymbols []byte = []byte{
 	'+', '-', '*', '/', '%', '&', '|', '^', '~', '!', '=', '<', '>', '?', ':',
 }
+
+var WhiteSpaceSymbols = []byte{
+	' ', '\n', '\t', '\v', '\f', '\r',
+}

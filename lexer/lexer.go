@@ -32,6 +32,7 @@ func (l *Lexer) readChar() {
 
 func (l *Lexer) NextToken() token.Token {
 	l.readChar()
+	l.skipWhiteSpace()
 
 	if l.ch == 0 {
 		return token.GetEofToken()
@@ -68,4 +69,10 @@ func (l *Lexer) peekChar() byte {
 		return 0
 	}
 	return l.input[l.pointer]
+}
+
+func (l *Lexer) skipWhiteSpace() {
+	for token.IsWhiteSpace(l.ch) {
+		l.readChar()
+	}
 }
