@@ -65,6 +65,7 @@ func (l *Lexer) NextToken() token.Token {
 		return token.GetCharToken(char)
 	}
 
+	// Check if it's a string literal
 	if l.ch == '"' {
 		str := l.readStringLiteral()
 		return token.GetStringToken(str)
@@ -121,7 +122,6 @@ func (l *Lexer) readCharLiteral() string {
 			escaped = false
 		}
 	}
-	l.readChar()
 	char := l.input[position:l.pointer]
 	return char
 }
@@ -138,7 +138,6 @@ func (l *Lexer) readStringLiteral() string {
 			escaped = false
 		}
 	}
-	l.readChar()
 	str := l.input[position:l.pointer]
 	return str
 }

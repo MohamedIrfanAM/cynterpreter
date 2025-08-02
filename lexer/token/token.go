@@ -1,6 +1,9 @@
 package token
 
-import "strings"
+import (
+	"fmt"
+	"strings"
+)
 
 type TokenType int
 
@@ -157,12 +160,24 @@ func GetIdentifierToken(word string) Token {
 }
 
 func GetNumberToken(num string) Token {
-	if strings.Count(num, ".") == 0 {
+	var suffix = ""
+	for i := 0; i < len(num); i++ {
+		l := strings.ToLower(string(num[i]))
+		if !IsDigit(num[i]) && l == "f" || l == "u" || l == "l" {
+			suffix += l
+		} else if len(suffix) != 0 {
+			return Token{TokenType: ILLEGAL}
+		}
+	}
+
+	fmt.Println(suffix)
+
+	if strings.Count(num, ".") == 0 && len(suffix) <= 3 && strings.Count(suffix, "f") == 0 && suffix != "lul" {
 		return Token{
 			TokenType: INT_LITERAL,
 			Lexeme:    num,
 		}
-	} else if strings.Count(num, ".") == 1 {
+	} else if strings.Count(num, ".") == 1 && len(suffix) <= 1 && strings.Count(suffix, "u") == 0 {
 		return Token{
 			TokenType: FLOAT_LITERAL,
 			Lexeme:    num,
@@ -219,7 +234,8 @@ func IsDigit(ch byte) bool {
 }
 
 func IsNumber(ch byte) bool {
-	return IsDigit(ch) || ch == '.'
+	lower := strings.ToLower(string(ch))
+	return IsDigit(ch) || ch == '.' || lower == "u" || lower == "f" || lower == "l"
 }
 
 func IsWordSymbol(ch byte) bool {
