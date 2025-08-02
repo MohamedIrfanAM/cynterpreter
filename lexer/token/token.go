@@ -1,5 +1,7 @@
 package token
 
+import "strings"
+
 type TokenType int
 
 type Token struct {
@@ -154,6 +156,38 @@ func GetIdentifierToken(word string) Token {
 	}
 }
 
+func GetNumberToken(num string) Token {
+	if strings.Count(num, ".") == 0 {
+		return Token{
+			TokenType: INT_LITERAL,
+			Lexeme:    num,
+		}
+	} else if strings.Count(num, ".") == 1 {
+		return Token{
+			TokenType: FLOAT_LITERAL,
+			Lexeme:    num,
+		}
+	}
+	return Token{TokenType: ILLEGAL}
+}
+
+func GetCharToken(char string) Token {
+	if len(char) == 1 {
+		return Token{
+			TokenType: CHAR_LITERAL,
+			Lexeme:    char,
+		}
+	}
+	return Token{TokenType: ILLEGAL}
+}
+
+func GetStringToken(str string) Token {
+	return Token{
+		TokenType: STRING_LITERAL,
+		Lexeme:    str,
+	}
+}
+
 func IsOperatorSymbol(ch byte) bool {
 	for _, v := range OpSymbols {
 		if v == ch {
@@ -178,6 +212,10 @@ func IsLetter(ch byte) bool {
 
 func IsDigit(ch byte) bool {
 	return ch >= '0' && ch <= '9'
+}
+
+func IsNumber(ch byte) bool {
+	return IsDigit(ch) || ch == '.'
 }
 
 func IsWordSymbol(ch byte) bool {

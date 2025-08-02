@@ -53,6 +53,23 @@ func (l *Lexer) NextToken() token.Token {
 		}
 	}
 
+	// Check if it's int or float iteral
+	if token.IsDigit(l.ch) {
+		num := l.readNumber()
+		return token.GetNumberToken(num)
+	}
+
+	// Check if it's a char literal
+	if l.ch == '\'' {
+		char := l.readCharLiteral()
+		return token.GetCharToken(char)
+	}
+
+	if l.ch == '"' {
+		str := l.readStringLiteral()
+		return token.GetStringToken(str)
+	}
+
 	// Check if it's a keyword or identifier
 	if token.IsWordStartSymbol(l.ch) {
 		word := l.readWord()
@@ -82,6 +99,36 @@ func (l *Lexer) readWord() string {
 		l.readChar()
 	}
 	return l.input[position:l.pointer]
+}
+
+func (l *Lexer) readNumber() string {
+	position := l.position
+	for token.IsNumber(l.peekChar()) {
+		l.readChar()
+	}
+	return l.input[position:l.pointer]
+}
+
+func (l *Lexer) readCharLiteral() string {
+	l.readChar()
+	position := l.position
+	for l.peekChar() != '\'' {
+		l.readChar()
+	}
+	char := l.input[position:l.pointer]
+	l.readChar()
+	return char
+}
+
+func (l *Lexer) readStringLiteral() string {
+	l.readChar()
+	position := l.position
+	for l.peekChar() != '"' {
+		l.readChar()
+	}
+	str := l.input[position:l.pointer]
+	l.readChar()
+	return str
 }
 
 func (l *Lexer) peekChar() byte {
