@@ -4,7 +4,7 @@ type TokenType int
 
 type Token struct {
 	TokenType TokenType
-	Literal   string
+	Lexeme    string
 }
 
 const (
@@ -78,6 +78,7 @@ func GetPunctuatorToken(ch byte) (Token, bool) {
 	if ok {
 		return Token{
 			TokenType: tokenType,
+			Lexeme:    string(ch),
 		}, ok
 	}
 	return Token{}, ok
@@ -88,6 +89,7 @@ func GetOperatorToken(op string) (Token, bool) {
 	if ok {
 		return Token{
 			TokenType: tokenType,
+			Lexeme:    op,
 		}, ok
 	}
 	return Token{}, ok
