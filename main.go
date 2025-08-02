@@ -1,27 +1,16 @@
 package main
 
 import (
-	"bufio"
 	"fmt"
 	"os"
 
-	"github.com/mohamedirfanam/cynterpreter/lexer"
+	"github.com/mohamedirfanam/cynterpreter/repl"
 )
 
 func main() {
 
-	var scanner *bufio.Scanner = bufio.NewScanner(os.Stdin)
-	fmt.Print(">> ")
+	fmt.Println("Cynterpreter: A C interprer")
+	fmt.Print("REPL Mode \n\n")
 
-	for scanner.Scan() {
-
-		var l = lexer.New(scanner.Text())
-
-		for i := range scanner.Text() {
-			token := l.NextToken()
-			fmt.Println(i+1, " - Token = ", token.TokenType)
-		}
-
-		fmt.Print(">> ")
-	}
+	repl.REPL(os.Stdin, os.Stdout)
 }
