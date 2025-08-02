@@ -38,13 +38,13 @@ func (l *Lexer) NextToken() token.Token {
 		return token.GetEofToken()
 	}
 
-	// Check if it's a punctuator
+	// Check if it's a Punctuator
 	tkn, found := token.GetPunctuatorToken(l.ch)
 	if found {
 		return tkn
 	}
 
-	// Check if it's a punctuator
+	// Check if it's an Operator
 	if token.IsOperatorSymbol(l.ch) {
 		op := l.readOperator()
 		tkn, found = token.GetOperatorToken(op)
