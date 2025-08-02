@@ -44,7 +44,7 @@ func (l *Lexer) NextToken() token.Token {
 	}
 
 	// Check if it's a punctuator
-	if isOperatorSymbol(l.ch) {
+	if token.IsOperatorSymbol(l.ch) {
 		op := l.readOperator()
 		tkn, found = token.GetOperatorToken(op)
 		if found {
@@ -57,7 +57,7 @@ func (l *Lexer) NextToken() token.Token {
 
 func (l *Lexer) readOperator() string {
 	position := l.position
-	for isOperatorSymbol(l.peekChar()) {
+	for token.IsOperatorSymbol(l.peekChar()) {
 		l.readChar()
 	}
 	return l.input[position:l.pointer]

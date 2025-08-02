@@ -92,3 +92,12 @@ func GetOperatorToken(op string) (Token, bool) {
 	}
 	return Token{}, ok
 }
+
+func IsOperatorSymbol(ch byte) bool {
+	for _, v := range OpSymbols {
+		if v == ch {
+			return true
+		}
+	}
+	return false
+}
