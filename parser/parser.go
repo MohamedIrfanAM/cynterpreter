@@ -1,8 +1,11 @@
 package parser
 
 import (
+	"fmt"
+
 	"github.com/mohamedirfanam/cynterpreter/lexer"
 	"github.com/mohamedirfanam/cynterpreter/lexer/token"
+	"github.com/mohamedirfanam/cynterpreter/parser/ast"
 )
 
 type Parser struct {
@@ -45,6 +48,26 @@ func (p *Parser) expectPeekToken(t token.TokenType) {
 	p.errors = append(p.errors, fmt.Errorf("Parser Error, Exptected Token - %s, Got - %s", t, p.peekToken.TokenType))
 }
 
-func (p *Parser) ParseProgram() {
+func (p *Parser) ParseProgram() *ast.Program {
+	program := &ast.Program{}
+	for !p.peekTokenIs(token.EOF) {
+		statement := p.ParseStatement()
+		program.Statements = append(program.Statements, statement)
+		p.nextToken()
+	}
+	return program
+}
 
+func (p *Parser) ParseStatement() ast.Statement {
+	switch p.curToken {
+	default:
+		return p.parseExpressionStatement()
+	}
+}
+
+func (p *Parser) parseExpressionStatement() *ast.ExpressionStatement {
+	for !p.peekTokenIs(token.SEMCOL) {
+		p.nextToken()
+	}
+	return &ast.ExpressionStatement{}
 }
