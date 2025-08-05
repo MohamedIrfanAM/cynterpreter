@@ -30,6 +30,21 @@ func (p *Parser) nextToken() {
 	p.peekToken = p.l.NextToken()
 }
 
+func (p *Parser) curTokenIs(t token.TokenType) bool {
+	return p.curToken.TokenType == t
+}
+
+func (p *Parser) peekTokenIs(t token.TokenType) bool {
+	return p.peekToken.TokenType == t
+}
+
+func (p *Parser) expectPeekToken(t token.TokenType) {
+	if p.peekTokenIs(t) {
+		p.nextToken()
+	}
+	p.errors = append(p.errors, fmt.Errorf("Parser Error, Exptected Token - %s, Got - %s", t, p.peekToken.TokenType))
+}
+
 func (p *Parser) ParseProgram() {
 
 }
