@@ -2,18 +2,18 @@ package ast
 
 import "github.com/mohamedirfanam/cynterpreter/lexer/token"
 
-// Integer literal
-type IntegerLiteral struct {
-	Token token.Token
-	Value int64
+// Expression Statement Node
+type ExpressionStatement struct {
+	Token      token.Token
+	Expression Expression
 }
 
-func (il *IntegerLiteral) TokenLexeme() string {
-	return il.Token.Lexeme
+func (es *ExpressionStatement) TokenLexeme() string {
+	return es.Token.Lexeme
 }
 
-func (il *IntegerLiteral) expressionNode() {}
+func (es *ExpressionStatement) statementNode() {}
 
-func (il *IntegerLiteral) String() string {
-	return il.Token.Lexeme
+func (es *ExpressionStatement) String() string {
+	return es.Expression.String()
 }
