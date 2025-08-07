@@ -41,11 +41,17 @@ func (p *Parser) peekTokenIs(t token.TokenType) bool {
 	return p.peekToken.TokenType == t
 }
 
-func (p *Parser) expectPeekToken(t token.TokenType) {
+func (p *Parser) expectPeekToken(t token.TokenType) bool {
 	if p.peekTokenIs(t) {
 		p.nextToken()
+		return true
 	}
 	p.errors = append(p.errors, fmt.Errorf("Parser Error, Exptected Token - %s, Got - %s", t, p.peekToken.TokenType))
+	return false
+}
+
+func (p *Parser) Errors() []error {
+	return p.errors
 }
 
 func (p *Parser) ParseProgram() *ast.Program {
