@@ -57,17 +57,3 @@ func (p *Parser) ParseProgram() *ast.Program {
 	}
 	return program
 }
-
-func (p *Parser) ParseStatement() ast.Statement {
-	switch p.curToken {
-	default:
-		return p.parseExpressionStatement()
-	}
-}
-
-func (p *Parser) parseExpressionStatement() *ast.ExpressionStatement {
-	for !p.peekTokenIs(token.SEMCOL) {
-		p.nextToken()
-	}
-	return &ast.ExpressionStatement{}
-}
