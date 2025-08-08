@@ -38,6 +38,19 @@ func New(input string) *Parser {
 
 	p.registerPrefixFunc(token.INT_LITERAL, p.parseIntegerLiteral)
 
+	p.registerInfixFunc(token.PLUS, p.parseInfixExpression)
+	p.registerInfixFunc(token.MINUS, p.parseInfixExpression)
+	p.registerInfixFunc(token.ASTER, p.parseInfixExpression)
+	p.registerInfixFunc(token.SLASH, p.parseInfixExpression)
+	p.registerInfixFunc(token.PERCENT, p.parseInfixExpression)
+	p.registerInfixFunc(token.EQ, p.parseInfixExpression)
+	p.registerInfixFunc(token.NE, p.parseInfixExpression)
+	p.registerInfixFunc(token.LT, p.parseInfixExpression)
+	p.registerInfixFunc(token.LE, p.parseInfixExpression)
+	p.registerInfixFunc(token.GT, p.parseInfixExpression)
+	p.registerInfixFunc(token.GE, p.parseInfixExpression)
+	p.registerInfixFunc(token.LPAREN, p.parseInfixExpression)
+
 	return &p
 }
 

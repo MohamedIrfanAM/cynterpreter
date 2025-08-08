@@ -32,18 +32,19 @@ func TestIntegerLiterals(t *testing.T) {
 		t.Fatalf("Parser Error: Lenght of statements not correct, expected %v, got %v", len(tests), len(statements))
 	}
 
-	for i, stmnt := range statements {
-		testIntegralLiteral(t, stmnt, tests[i])
+	for i, statement := range statements {
+		stmnt, ok := statement.(*ast.ExpressionStatement)
+		if !ok {
+			t.Errorf("Statement type not matching, expected ast.ExpressionStatement, got %T", stmnt)
+		}
+
+		testIntegralLiteral(t, stmnt.Expression, tests[i])
 	}
 }
 
-func testIntegralLiteral(t *testing.T, statement ast.Statement, exptectedValue int) {
-	stmnt, ok := statement.(*ast.ExpressionStatement)
-	if !ok {
-		t.Errorf("Statement type not matching, expected ast.ExpressionStatement, got %T", stmnt)
-	}
+func testIntegralLiteral(t *testing.T, expression ast.Expression, exptectedValue int) {
 
-	expr, ok := stmnt.Expression.(*ast.IntegerLiteral)
+	expr, ok := expression.(*ast.IntegerLiteral)
 	if !ok {
 		t.Errorf("Expression is not of exptected type ast.IntegerLiteral, got %T", expr)
 	}
@@ -54,5 +55,59 @@ func testIntegralLiteral(t *testing.T, statement ast.Statement, exptectedValue i
 
 	if expr.TokenLexeme() != strconv.Itoa(exptectedValue) || expr.Value != int64(exptectedValue) {
 		t.Errorf("Value not correct, Exptected Lexeme - %s, Got Lexeme - %s, Expected Value - %d, Got value - %d", strconv.Itoa(exptectedValue), expr.TokenLexeme(), exptectedValue, expr.Value)
+	}
+}
+
+func TestInfixExpressions(t *testing.T) {
+	tests := []struct {
+		input      string
+		operator   string
+		leftValue  int
+		rightValue int
+	}{
+		{"5 + 3;", "+", 5, 3},
+		{"5 - 3;", "-", 5, 3},
+		{"5 * 3;", "*", 5, 3},
+		{"5 / 3;", "/", 5, 3},
+		{"5 % 3;", "%", 5, 3},
+		{"5 == 3;", "==", 5, 3},
+		{"5 != 3;", "!=", 5, 3},
+		{"5 < 3;", "<", 5, 3},
+		{"5 <= 3;", "<=", 5, 3},
+		{"5 > 3;", ">", 5, 3},
+		{"5 >= 3;", ">=", 5, 3},
+	}
+
+	for _, tt := range tests {
+		p := New(tt.input)
+		program := p.ParseProgram()
+
+		if len(p.Errors()) != 0 {
+			for _, err := range p.Errors() {
+				t.Errorf("Parser Error: %s\n", err.Error())
+			}
+			t.Fatal("Exiting now!")
+		}
+
+		if len(program.Statements) != 1 {
+			t.Fatalf("Expected 1 statement, got %d", len(program.Statements))
+		}
+
+		stmt, ok := program.Statements[0].(*ast.ExpressionStatement)
+		if !ok {
+			t.Fatalf("Statement is not of type ast.ExpressionStatement, got %T", program.Statements[0])
+		}
+
+		expr, ok := stmt.Expression.(*ast.InfixExpression)
+		if !ok {
+			t.Fatalf("Expression is not of type ast.InfixExpression, got %T", stmt.Expression)
+		}
+
+		if expr.Op != tt.operator {
+			t.Errorf("Operator mismatch, expected %s, got %s", tt.operator, expr.Op)
+		}
+
+		testIntegralLiteral(t, expr.LeftExp, tt.leftValue)
+		testIntegralLiteral(t, expr.RightExp, tt.rightValue)
 	}
 }
