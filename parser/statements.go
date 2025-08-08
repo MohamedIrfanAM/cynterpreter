@@ -13,8 +13,11 @@ func (p *Parser) ParseStatement() ast.Statement {
 }
 
 func (p *Parser) parseExpressionStatement() *ast.ExpressionStatement {
-	for !p.peekTokenIs(token.SEMCOL) {
-		p.nextToken()
+	tkn := p.curToken
+	exp := p.parseExpression(LOWEST)
+	p.expectPeekToken(token.SEMCOL)
+	return &ast.ExpressionStatement{
+		Token:      tkn,
+		Expression: exp,
 	}
-	return &ast.ExpressionStatement{}
 }

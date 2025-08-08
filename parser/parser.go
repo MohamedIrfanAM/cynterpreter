@@ -14,8 +14,16 @@ type Parser struct {
 	curToken  token.Token
 	peekToken token.Token
 
+	prefixParseFuncs map[token.TokenType]prefixParseFunc
+	infixParseFuncs  map[token.TokenType]infixParseFunc
+
 	errors []error
 }
+
+type (
+	prefixParseFunc func() ast.Expression
+	infixParseFunc  func(ast.Expression) ast.Expression
+)
 
 func New(input string) *Parser {
 	p := Parser{
@@ -24,6 +32,11 @@ func New(input string) *Parser {
 
 	p.nextToken()
 	p.nextToken()
+
+	p.prefixParseFuncs = make(map[token.TokenType]prefixParseFunc)
+	p.infixParseFuncs = make(map[token.TokenType]infixParseFunc)
+
+	p.registerPrefixFunc(token.INT_LITERAL, p.parseIntegerLiteral)
 
 	return &p
 }
@@ -50,13 +63,37 @@ func (p *Parser) expectPeekToken(t token.TokenType) bool {
 	return false
 }
 
+func (p *Parser) peekPrecedence() int {
+	precedence, ok := precedences[p.peekToken.TokenType]
+	if ok {
+		return precedence
+	}
+	return LOWEST
+}
+
+func (p *Parser) curPrecedence() int {
+	precedence, ok := precedences[p.curToken.TokenType]
+	if ok {
+		return precedence
+	}
+	return LOWEST
+}
+
+func (p *Parser) registerPrefixFunc(t token.TokenType, fn prefixParseFunc) {
+	p.prefixParseFuncs[t] = fn
+}
+
+func (p *Parser) registerInfixFunc(t token.TokenType, fn infixParseFunc) {
+	p.infixParseFuncs[t] = fn
+}
+
 func (p *Parser) Errors() []error {
 	return p.errors
 }
 
 func (p *Parser) ParseProgram() *ast.Program {
 	program := &ast.Program{}
-	for !p.peekTokenIs(token.EOF) {
+	for !p.curTokenIs(token.EOF) {
 		statement := p.ParseStatement()
 		program.Statements = append(program.Statements, statement)
 		p.nextToken()
