@@ -111,3 +111,51 @@ func TestInfixExpressions(t *testing.T) {
 		testIntegralLiteral(t, expr.RightExp, tt.rightValue)
 	}
 }
+
+func TestExpressions(t *testing.T) {
+	input := `
+	5+3;
+	6+9*2;
+	5/1+4;
+	3*4+5/2-1;
+	2+3*4-5;
+	7+6*5+4/2;
+	`
+	expected := []string{
+		"(5 + 3)",
+		"(6 + (9 * 2))",
+		"((5 / 1) + 4)",
+		"(((3 * 4) + (5 / 2)) - 1)",
+		"((2 + (3 * 4)) - 5)",
+		"((7 + (6 * 5)) + (4 / 2))",
+	}
+
+	p := New(input)
+	program := p.ParseProgram()
+
+	if len(p.Errors()) != 0 {
+		for _, err := range p.Errors() {
+			t.Errorf("Parser Error: %s\n", err.Error())
+		}
+		t.Fatal("Exiting now!")
+	}
+
+	if len(program.Statements) != len(expected) {
+		t.Fatalf("Expected %d statement, got %d", len(expected), len(program.Statements))
+	}
+
+	for i, statement := range program.Statements {
+		stmt, ok := statement.(*ast.ExpressionStatement)
+		if !ok {
+			t.Fatalf("Statement is not of type ast.ExpressionStatement, got %T", program.Statements[0])
+		}
+		expr, ok := stmt.Expression.(*ast.InfixExpression)
+		if !ok {
+			t.Fatalf("Expression is not of type ast.InfixExpression, got %T", stmt.Expression)
+		}
+
+		if expr.String() != expected[i] {
+			t.Errorf("Expression mismatch, expected %s, got %s", expected[i], expr.String())
+		}
+	}
+}

@@ -1,7 +1,6 @@
 package token
 
 import (
-	"fmt"
 	"strings"
 )
 
@@ -169,8 +168,6 @@ func GetNumberToken(num string) Token {
 			return Token{TokenType: ILLEGAL}
 		}
 	}
-
-	fmt.Println(suffix)
 
 	if strings.Count(num, ".") == 0 && len(suffix) <= 3 && strings.Count(suffix, "f") == 0 && suffix != "lul" {
 		return Token{

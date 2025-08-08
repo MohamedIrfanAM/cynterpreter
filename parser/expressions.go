@@ -72,8 +72,9 @@ func (p *Parser) parseInfixExpression(leftExp ast.Expression) ast.Expression {
 		LeftExp: leftExp,
 		Op:      p.curToken.Lexeme,
 	}
+	precedence := precedences[p.curToken.TokenType]
 	p.nextToken()
-	rightExp := p.parseExpression(p.curPrecedence())
+	rightExp := p.parseExpression(precedence)
 	exp.RightExp = rightExp
 
 	return exp
