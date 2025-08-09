@@ -42,6 +42,7 @@ func New(input string) *Parser {
 	p.registerPrefixFunc(token.CHAR_LITERAL, p.parseCharLiteral)
 	p.registerPrefixFunc(token.FLOAT_LITERAL, p.parseFloatLiteral)
 	p.registerPrefixFunc(token.STRING_LITERAL, p.parseStringLiteral)
+	p.registerPrefixFunc(token.BOOL_LITERAL, p.parseBoolLiteral)
 	p.registerPrefixFunc(token.PLUS, p.parsePrefixExpression)
 	p.registerPrefixFunc(token.MINUS, p.parsePrefixExpression)
 	p.registerPrefixFunc(token.NOT, p.parsePrefixExpression)

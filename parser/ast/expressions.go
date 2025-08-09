@@ -70,6 +70,22 @@ func (sl *StringLiteral) String() string {
 	return sl.Token.Lexeme
 }
 
+// Bool Literal
+type BoolLiteral struct {
+	Token token.Token
+	Value bool
+}
+
+func (bl *BoolLiteral) TokenLexeme() string {
+	return bl.Token.Lexeme
+}
+
+func (bl *BoolLiteral) expressionNode() {}
+
+func (bl *BoolLiteral) String() string {
+	return bl.Token.Lexeme
+}
+
 // Identifier expression
 type IdentifierExpression struct {
 	Token token.Token

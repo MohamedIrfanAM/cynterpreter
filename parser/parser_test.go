@@ -216,6 +216,42 @@ func TestStringLiterals(t *testing.T) {
 	}
 }
 
+func TestBoolLiterals(t *testing.T) {
+	input := `
+	true;
+	false;
+	true;
+	false;
+	`
+	tests := []bool{true, false, true, false}
+
+	p := New(input)
+
+	program := p.ParseProgram()
+
+	if len(p.Errors()) != 0 {
+		for _, err := range p.Errors() {
+			t.Errorf("Parser Error: %s\n", err.Error())
+		}
+		t.Fatal("Exiting now!")
+	}
+
+	statements := program.Statements
+
+	if len(statements) != len(tests) {
+		t.Fatalf("Parser Error: Length of statements not correct, expected %v, got %v", len(tests), len(statements))
+	}
+
+	for i, statement := range statements {
+		stmnt, ok := statement.(*ast.ExpressionStatement)
+		if !ok {
+			t.Errorf("Statement type not matching, expected ast.ExpressionStatement, got %T", stmnt)
+		}
+
+		testBoolLiteral(t, stmnt.Expression, tests[i])
+	}
+}
+
 func testIntegralLiteral(t *testing.T, expression ast.Expression, expectedValue int) {
 	expr, ok := expression.(*ast.IntegerLiteral)
 	if !ok {
@@ -290,6 +326,21 @@ func testStringLiteral(t *testing.T, expression ast.Expression, expectedValue st
 
 	if expr.Value != expectedValue {
 		t.Errorf("Value not correct, Expected Value - %s, Got value - %s", expectedValue, expr.Value)
+	}
+}
+
+func testBoolLiteral(t *testing.T, expression ast.Expression, expectedValue bool) {
+	expr, ok := expression.(*ast.BoolLiteral)
+	if !ok {
+		t.Errorf("Expression is not of expected type ast.BoolLiteral, got %T", expr)
+	}
+
+	if expr.Token.TokenType != token.BOOL_LITERAL {
+		t.Errorf("Token type is not TRUE or FALSE")
+	}
+
+	if expr.Value != expectedValue {
+		t.Errorf("Value not correct, Expected Value - %t, Got value - %t", expectedValue, expr.Value)
 	}
 }
 

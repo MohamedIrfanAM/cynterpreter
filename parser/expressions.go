@@ -102,6 +102,19 @@ func (p *Parser) parseStringLiteral() ast.Expression {
 	}
 }
 
+func (p *Parser) parseBoolLiteral() ast.Expression {
+	var val bool
+	if p.curToken.Lexeme == "true" {
+		val = true
+	} else {
+		val = false
+	}
+	return &ast.BoolLiteral{
+		Token: p.curToken,
+		Value: val,
+	}
+}
+
 func (p *Parser) parseIdentifierExpression() ast.Expression {
 	return &ast.IdentifierExpression{
 		Token: p.curToken,
