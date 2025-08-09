@@ -129,6 +129,44 @@ func TestCharLiterals(t *testing.T) {
 	}
 }
 
+func TestFloatLiterals(t *testing.T) {
+	input := `
+	3.14;
+	0.5;
+	123.456;
+	0.0;
+	1.0;
+	999.999;
+	`
+	tests := []float64{3.14, 0.5, 123.456, 0.0, 1.0, 999.999}
+
+	p := New(input)
+
+	program := p.ParseProgram()
+
+	if len(p.Errors()) != 0 {
+		for _, err := range p.Errors() {
+			t.Errorf("Parser Error: %s\n", err.Error())
+		}
+		t.Fatal("Exiting now!")
+	}
+
+	statements := program.Statements
+
+	if len(statements) != len(tests) {
+		t.Fatalf("Parser Error: Length of statements not correct, expected %v, got %v", len(tests), len(statements))
+	}
+
+	for i, statement := range statements {
+		stmnt, ok := statement.(*ast.ExpressionStatement)
+		if !ok {
+			t.Errorf("Statement type not matching, expected ast.ExpressionStatement, got %T", stmnt)
+		}
+
+		testFloatLiteral(t, stmnt.Expression, tests[i])
+	}
+}
+
 func testIntegralLiteral(t *testing.T, expression ast.Expression, exptectedValue int) {
 
 	expr, ok := expression.(*ast.IntegerLiteral)
@@ -173,6 +211,21 @@ func testCharLiteral(t *testing.T, expression ast.Expression, expectedValue byte
 
 	if expr.Value != expectedValue {
 		t.Errorf("Value not correct, Expected Value - %c, Got value - %c", expectedValue, expr.Value)
+	}
+}
+
+func testFloatLiteral(t *testing.T, expression ast.Expression, expectedValue float64) {
+	expr, ok := expression.(*ast.FloatLiteral)
+	if !ok {
+		t.Errorf("Expression is not of expected type ast.FloatLiteral, got %T", expr)
+	}
+
+	if expr.Token.TokenType != token.FLOAT_LITERAL {
+		t.Errorf("Token type is not FLOAT_LITERAL")
+	}
+
+	if expr.Value != expectedValue {
+		t.Errorf("Value not correct, Expected Value - %f, Got value - %f", expectedValue, expr.Value)
 	}
 }
 

@@ -38,6 +38,22 @@ func (cl *CharLiteral) String() string {
 	return cl.Token.Lexeme
 }
 
+// Float literal
+type FloatLiteral struct {
+	Token token.Token
+	Value float64
+}
+
+func (fl *FloatLiteral) TokenLexeme() string {
+	return fl.Token.Lexeme
+}
+
+func (fl *FloatLiteral) expressionNode() {}
+
+func (fl *FloatLiteral) String() string {
+	return fl.Token.Lexeme
+}
+
 // Identifier expression
 type IdentifierExpression struct {
 	Token token.Token

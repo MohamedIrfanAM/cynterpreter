@@ -78,6 +78,18 @@ func (p *Parser) parseCharLiteral() ast.Expression {
 	}
 }
 
+func (p *Parser) parseFloatLiteral() ast.Expression {
+	val, err := strconv.ParseFloat(p.curToken.Lexeme, 64)
+	if err != nil {
+		p.errors = append(p.errors, fmt.Errorf("parser Error: Error parsring float  literal %s", p.curToken.Lexeme))
+		return nil
+	}
+	return &ast.FloatLiteral{
+		Token: p.curToken,
+		Value: val,
+	}
+}
+
 func (p *Parser) parseIdentifierExpression() ast.Expression {
 	return &ast.IdentifierExpression{
 		Token: p.curToken,
