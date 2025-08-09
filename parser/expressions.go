@@ -66,6 +66,18 @@ func (p *Parser) parseIntegerLiteral() ast.Expression {
 	}
 }
 
+func (p *Parser) parseCharLiteral() ast.Expression {
+	val, err := strconv.Unquote(p.curToken.Lexeme)
+	if err != nil || len(val) > 1 {
+		p.errors = append(p.errors, fmt.Errorf("parser Error: Error parsring char literal %s", p.curToken.Lexeme))
+		return nil
+	}
+	return &ast.CharLiteral{
+		Token: p.curToken,
+		Value: val[0],
+	}
+}
+
 func (p *Parser) parseIdentifierExpression() ast.Expression {
 	return &ast.IdentifierExpression{
 		Token: p.curToken,
@@ -79,7 +91,7 @@ func (p *Parser) parseInfixExpression(leftExp ast.Expression) ast.Expression {
 		LeftExp: leftExp,
 		Op:      p.curToken.Lexeme,
 	}
-	precedence := precedences[p.curToken.TokenType]
+	precedence := p.curPrecedence()
 	p.nextToken()
 	rightExp := p.parseExpression(precedence)
 	exp.RightExp = rightExp

@@ -22,6 +22,22 @@ func (il *IntegerLiteral) String() string {
 	return il.Token.Lexeme
 }
 
+// Char Literal
+type CharLiteral struct {
+	Token token.Token
+	Value byte
+}
+
+func (cl *CharLiteral) TokenLexeme() string {
+	return cl.Token.Lexeme
+}
+
+func (cl *CharLiteral) expressionNode() {}
+
+func (cl *CharLiteral) String() string {
+	return cl.Token.Lexeme
+}
+
 // Identifier expression
 type IdentifierExpression struct {
 	Token token.Token

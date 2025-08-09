@@ -78,6 +78,57 @@ func TestIdentifierExpressios(t *testing.T) {
 
 }
 
+func TestCharLiterals(t *testing.T) {
+	input := `
+	'a';
+	'Z';
+	'5';
+	'@';
+	' ';
+	'\n';
+	'\t';
+	'\r';
+	'\\';
+	`
+	tests := []byte{
+		'a',
+		'Z',
+		'5',
+		'@',
+		' ',
+		'\n',
+		'\t',
+		'\r',
+		'\\',
+	}
+
+	p := New(input)
+
+	program := p.ParseProgram()
+
+	if len(p.Errors()) != 0 {
+		for _, err := range p.Errors() {
+			t.Errorf("Parser Error: %s\n", err.Error())
+		}
+		t.Fatal("Exiting now!")
+	}
+
+	statements := program.Statements
+
+	if len(statements) != len(tests) {
+		t.Fatalf("Parser Error: Length of statements not correct, expected %v, got %v", len(tests), len(statements))
+	}
+
+	for i, statement := range statements {
+		stmnt, ok := statement.(*ast.ExpressionStatement)
+		if !ok {
+			t.Errorf("Statement type not matching, expected ast.ExpressionStatement, got %T", stmnt)
+		}
+
+		testCharLiteral(t, stmnt.Expression, tests[i])
+	}
+}
+
 func testIntegralLiteral(t *testing.T, expression ast.Expression, exptectedValue int) {
 
 	expr, ok := expression.(*ast.IntegerLiteral)
@@ -107,6 +158,21 @@ func testIdentifierExpression(t *testing.T, expression ast.Expression, expectedV
 
 	if expr.TokenLexeme() != expectedValue || expr.Value != expectedValue {
 		t.Errorf("Value not correct, Exptected Lexeme - %s, Got Lexeme - %s, Expected Value - %s, Got value - %s", expectedValue, expr.TokenLexeme(), expectedValue, expr.Value)
+	}
+}
+
+func testCharLiteral(t *testing.T, expression ast.Expression, expectedValue byte) {
+	expr, ok := expression.(*ast.CharLiteral)
+	if !ok {
+		t.Errorf("Expression is not of expected type ast.CharLiteral, got %T", expr)
+	}
+
+	if expr.Token.TokenType != token.CHAR_LITERAL {
+		t.Errorf("Token type is not CHAR_LITERAL")
+	}
+
+	if expr.Value != expectedValue {
+		t.Errorf("Value not correct, Expected Value - %c, Got value - %c", expectedValue, expr.Value)
 	}
 }
 
