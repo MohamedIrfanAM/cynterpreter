@@ -136,3 +136,30 @@ func (prefixExp *PrefixExpression) String() string {
 
 	return str.String()
 }
+
+// Call Expression Node
+type CallExpression struct {
+	Token    token.Token
+	Function Expression
+	Args     []Expression
+}
+
+func (ce *CallExpression) TokenLexeme() string {
+	return ce.Token.Lexeme
+}
+
+func (ce *CallExpression) expressionNode() {}
+
+func (ce *CallExpression) String() string {
+	var str strings.Builder
+
+	str.WriteString(ce.Function.TokenLexeme() + "(")
+	for i, exp := range ce.Args {
+		str.WriteString(exp.String())
+		if i < len(ce.Args)-1 {
+			str.WriteString(", ")
+		}
+	}
+	str.WriteByte(')')
+	return str.String()
+}

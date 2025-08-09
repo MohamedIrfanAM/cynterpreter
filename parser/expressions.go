@@ -109,6 +109,33 @@ func (p *Parser) parseIdentifierExpression() ast.Expression {
 	}
 }
 
+func (p *Parser) parseCallExpression(funcIdentifier ast.Expression) ast.Expression {
+	expr := &ast.CallExpression{
+		Token:    p.curToken,
+		Function: funcIdentifier,
+	}
+	expr.Args = p.parseCallArgs()
+	return expr
+}
+
+func (p *Parser) parseCallArgs() []ast.Expression {
+	p.nextToken()
+	var args []ast.Expression
+	if p.curTokenIs(token.RPAREN) {
+		return args
+	}
+	args = append(args, p.parseExpression(LOWEST))
+	for p.peekTokenIs(token.COMMA) {
+		p.nextToken()
+		p.nextToken()
+		args = append(args, p.parseExpression(LOWEST))
+	}
+	if !p.expectPeekToken(token.RPAREN) {
+		return nil
+	}
+	return args
+}
+
 func (p *Parser) parseInfixExpression(leftExp ast.Expression) ast.Expression {
 	exp := &ast.InfixExpression{
 		Token:   p.curToken,

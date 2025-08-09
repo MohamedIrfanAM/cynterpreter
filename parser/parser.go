@@ -57,7 +57,7 @@ func New(input string) *Parser {
 	p.registerInfixFunc(token.LE, p.parseInfixExpression)
 	p.registerInfixFunc(token.GT, p.parseInfixExpression)
 	p.registerInfixFunc(token.GE, p.parseInfixExpression)
-	p.registerInfixFunc(token.LPAREN, p.parseInfixExpression)
+	p.registerInfixFunc(token.LPAREN, p.parseCallExpression)
 
 	return &p
 }

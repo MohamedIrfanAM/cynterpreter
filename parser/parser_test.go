@@ -216,19 +216,19 @@ func TestStringLiterals(t *testing.T) {
 	}
 }
 
-func testIntegralLiteral(t *testing.T, expression ast.Expression, exptectedValue int) {
-
+func testIntegralLiteral(t *testing.T, expression ast.Expression, expectedValue int) {
 	expr, ok := expression.(*ast.IntegerLiteral)
 	if !ok {
-		t.Errorf("Expression is not of exptected type ast.IntegerLiteral, got %T", expr)
+		t.Errorf("Expression is not of expected type *ast.IntegerLiteral, got %T", expression)
+		return
 	}
 
 	if expr.Token.TokenType != token.INT_LITERAL {
 		t.Errorf("Token type is not INT_LITERAL")
 	}
 
-	if expr.TokenLexeme() != strconv.Itoa(exptectedValue) || expr.Value != int64(exptectedValue) {
-		t.Errorf("Value not correct, Exptected Lexeme - %s, Got Lexeme - %s, Expected Value - %d, Got value - %d", strconv.Itoa(exptectedValue), expr.TokenLexeme(), exptectedValue, expr.Value)
+	if expr.TokenLexeme() != strconv.Itoa(expectedValue) || expr.Value != int64(expectedValue) {
+		t.Errorf("Value not correct, Expected Lexeme - %s, Got Lexeme - %s, Expected Value - %d, Got value - %d", strconv.Itoa(expectedValue), expr.TokenLexeme(), expectedValue, expr.Value)
 	}
 }
 
@@ -290,6 +290,90 @@ func testStringLiteral(t *testing.T, expression ast.Expression, expectedValue st
 
 	if expr.Value != expectedValue {
 		t.Errorf("Value not correct, Expected Value - %s, Got value - %s", expectedValue, expr.Value)
+	}
+}
+
+func TestCallExpression(t *testing.T) {
+	tests := []struct {
+		input        string
+		functionName string
+		argCount     int
+		args         []interface{}
+	}{
+		{"add();", "add", 0, []interface{}{}},
+		{"add(5);", "add", 1, []interface{}{5}},
+		{"add(5, 10);", "add", 2, []interface{}{5, 10}},
+		{"multiply(2, 3, 4);", "multiply", 3, []interface{}{2, 3, 4}},
+		{"print(\"hello\");", "print", 1, []interface{}{"hello"}},
+		{"calc(x, y);", "calc", 2, []interface{}{"x", "y"}},
+		{"func(1, 2.5);", "func", 2, []interface{}{1, 2.5}},
+	}
+
+	for _, tt := range tests {
+		p := New(tt.input)
+		program := p.ParseProgram()
+
+		if len(p.Errors()) != 0 {
+			for _, err := range p.Errors() {
+				t.Errorf("Parser Error: %s\n", err.Error())
+			}
+			t.Fatal("Exiting now!")
+		}
+
+		if len(program.Statements) != 1 {
+			t.Fatalf("Expected 1 statement, got %d", len(program.Statements))
+		}
+
+		stmt, ok := program.Statements[0].(*ast.ExpressionStatement)
+		if !ok {
+			t.Fatalf("Statement is not of type ast.ExpressionStatement, got %T", program.Statements[0])
+		}
+
+		testCallExpression(t, stmt.Expression, tt.functionName, tt.argCount, tt.args)
+	}
+}
+
+func testCallExpression(t *testing.T, expression ast.Expression, expectedFunctionName string, expectedArgCount int, expectedArgs []interface{}) {
+	expr, ok := expression.(*ast.CallExpression)
+	if !ok {
+		t.Errorf("Expression is not of expected type ast.CallExpression, got %T", expression)
+		return
+	}
+
+	if expr.Token.TokenType != token.LPAREN {
+		t.Errorf("Token type is not LPAREN")
+	}
+
+	funcIdent, ok := expr.Function.(*ast.IdentifierExpression)
+	if !ok {
+		t.Errorf("Function is not an identifier, got %T", expr.Function)
+		return
+	}
+
+	if funcIdent.Value != expectedFunctionName {
+		t.Errorf("Function name mismatch, expected %s, got %s", expectedFunctionName, funcIdent.Value)
+	}
+
+	if len(expr.Args) != expectedArgCount {
+		t.Errorf("Argument count mismatch, expected %d, got %d", expectedArgCount, len(expr.Args))
+		return
+	}
+
+	for i, expectedArg := range expectedArgs {
+		switch v := expectedArg.(type) {
+		case int:
+			testIntegralLiteral(t, expr.Args[i], v)
+		case float64:
+			testFloatLiteral(t, expr.Args[i], v)
+		case string:
+			if _, ok := expr.Args[i].(*ast.IdentifierExpression); ok {
+				testIdentifierExpression(t, expr.Args[i], v)
+			} else {
+				testStringLiteral(t, expr.Args[i], v)
+			}
+		default:
+			t.Errorf("Unsupported argument type: %T", v)
+		}
 	}
 }
 
@@ -430,6 +514,16 @@ func TestExpressions(t *testing.T) {
 	"str"+variable;
 	'x'*2;
 	-(3.14+2.5);
+	add();
+	func(5);
+	calc(x, y);
+	print("hello");
+	multiply(2, 3, 4);
+	nested(func(x), y);
+	add(5) + subtract(3);
+	multiply(add(2, 3), 4);
+	func(1, 2.5, "test");
+	process(count + value);
 	`
 	expected := []string{
 		"(a + b)",
@@ -464,6 +558,16 @@ func TestExpressions(t *testing.T) {
 		"(\"str\" + variable)",
 		"('x' * 2)",
 		"(-(3.14 + 2.5))",
+		"add()",
+		"func(5)",
+		"calc(x, y)",
+		"print(\"hello\")",
+		"multiply(2, 3, 4)",
+		"nested(func(x), y)",
+		"(add(5) + subtract(3))",
+		"multiply(add(2, 3), 4)",
+		"func(1, 2.5, \"test\")",
+		"process((count + value))",
 	}
 
 	p := New(input)
