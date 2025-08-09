@@ -112,3 +112,27 @@ func (infExp *InfixExpression) String() string {
 
 	return str.String()
 }
+
+// Prefix Expression Node
+type PrefixExpression struct {
+	Token token.Token
+	Exp   Expression
+	Op    string
+}
+
+func (prefixExp *PrefixExpression) TokenLexeme() string {
+	return prefixExp.Token.Lexeme
+}
+
+func (prefixExp *PrefixExpression) expressionNode() {}
+
+func (prefixExp *PrefixExpression) String() string {
+	var str strings.Builder
+
+	str.WriteString("(")
+	str.WriteString(prefixExp.Op)
+	str.WriteString(prefixExp.Exp.String())
+	str.WriteString(")")
+
+	return str.String()
+}

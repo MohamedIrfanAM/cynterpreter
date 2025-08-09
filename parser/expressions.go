@@ -129,3 +129,14 @@ func (p *Parser) parseGroupedExpression() ast.Expression {
 	p.expectPeekToken(token.RPAREN)
 	return exp
 }
+
+func (p *Parser) parsePrefixExpression() ast.Expression {
+	exp := &ast.PrefixExpression{
+		Token: p.curToken,
+		Op:    p.curToken.Lexeme,
+	}
+	p.nextToken()
+	rexp := p.parseExpression(PREFIX)
+	exp.Exp = rexp
+	return exp
+}

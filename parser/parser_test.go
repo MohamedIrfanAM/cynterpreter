@@ -347,6 +347,55 @@ func TestInfixExpressions(t *testing.T) {
 	}
 }
 
+func TestPrefixExpressions(t *testing.T) {
+	tests := []struct {
+		input    string
+		operator string
+		value    int
+	}{
+		{"-5;", "-", 5},
+		{"+5;", "+", 5},
+		{"-15;", "-", 15},
+		{"+15;", "+", 15},
+		{"-0;", "-", 0},
+		{"+0;", "+", 0},
+		{"-999;", "-", 999},
+		{"+999;", "+", 999},
+	}
+
+	for _, tt := range tests {
+		p := New(tt.input)
+		program := p.ParseProgram()
+
+		if len(p.Errors()) != 0 {
+			for _, err := range p.Errors() {
+				t.Errorf("Parser Error: %s\n", err.Error())
+			}
+			t.Fatal("Exiting now!")
+		}
+
+		if len(program.Statements) != 1 {
+			t.Fatalf("Expected 1 statement, got %d", len(program.Statements))
+		}
+
+		stmt, ok := program.Statements[0].(*ast.ExpressionStatement)
+		if !ok {
+			t.Fatalf("Statement is not of type ast.ExpressionStatement, got %T", program.Statements[0])
+		}
+
+		expr, ok := stmt.Expression.(*ast.PrefixExpression)
+		if !ok {
+			t.Fatalf("Expression is not of type ast.PrefixExpression, got %T", stmt.Expression)
+		}
+
+		if expr.Op != tt.operator {
+			t.Errorf("Operator mismatch, expected %s, got %s", tt.operator, expr.Op)
+		}
+
+		testIntegralLiteral(t, expr.Exp, tt.value)
+	}
+}
+
 func TestExpressions(t *testing.T) {
 	input := `
 	a+b;
@@ -363,6 +412,24 @@ func TestExpressions(t *testing.T) {
 	(count+value)*(factor-constant);
 	((count+value)*factor)-constant;
 	7+(count*(value+factor));
+	-5;
+	+10;
+	-x+y;
+	-(a+b);
+	-5*3;
+	3*-5;
+	-a*b+c;
+	3.14+2.5;
+	'a'+'b';
+	"hello"+"world";
+	5.5*2.0;
+	-3.14;
+	+2.71;
+	count+-5;
+	-value*factor;
+	"str"+variable;
+	'x'*2;
+	-(3.14+2.5);
 	`
 	expected := []string{
 		"(a + b)",
@@ -379,6 +446,24 @@ func TestExpressions(t *testing.T) {
 		"((count + value) * (factor - constant))",
 		"(((count + value) * factor) - constant)",
 		"(7 + (count * (value + factor)))",
+		"(-5)",
+		"(+10)",
+		"((-x) + y)",
+		"(-(a + b))",
+		"((-5) * 3)",
+		"(3 * (-5))",
+		"(((-a) * b) + c)",
+		"(3.14 + 2.5)",
+		"('a' + 'b')",
+		"(\"hello\" + \"world\")",
+		"(5.5 * 2.0)",
+		"(-3.14)",
+		"(+2.71)",
+		"(count + (-5))",
+		"((-value) * factor)",
+		"(\"str\" + variable)",
+		"('x' * 2)",
+		"(-(3.14 + 2.5))",
 	}
 
 	p := New(input)
@@ -400,13 +485,11 @@ func TestExpressions(t *testing.T) {
 		if !ok {
 			t.Fatalf("Statement is not of type ast.ExpressionStatement, got %T", program.Statements[0])
 		}
-		expr, ok := stmt.Expression.(*ast.InfixExpression)
-		if !ok {
-			t.Fatalf("Expression is not of type ast.InfixExpression, got %T", stmt.Expression)
-		}
+
+		var expr ast.Expression = stmt.Expression
 
 		if expr.String() != expected[i] {
-			t.Errorf("Expression mismatch, expected %s, got %s", expected[i], expr.String())
+			t.Errorf("Expression mismatch at index %d, expected %s, got %s", i, expected[i], expr.String())
 		}
 	}
 }
