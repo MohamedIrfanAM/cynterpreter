@@ -182,7 +182,7 @@ func TestIdentifierTokens(t *testing.T) {
 }
 
 func TestLiterals(t *testing.T) {
-	var input = `42 123 3.14 2.5f 'a' 'Z' '\n' "hello" "world" "hello world"`
+	var input = `42 123 3.14 2.5f 'a' 'Z' '\n' "hello" "world" "hello world" true false`
 
 	expectedTokens := []token.Token{
 		{TokenType: token.INT_LITERAL, Lexeme: "42"},
@@ -195,6 +195,8 @@ func TestLiterals(t *testing.T) {
 		{TokenType: token.STRING_LITERAL, Lexeme: "\"hello\""},
 		{TokenType: token.STRING_LITERAL, Lexeme: "\"world\""},
 		{TokenType: token.STRING_LITERAL, Lexeme: "\"hello world\""},
+		{TokenType: token.BOOL_LITERAL, Lexeme: "true"},
+		{TokenType: token.BOOL_LITERAL, Lexeme: "false"},
 		{TokenType: token.EOF, Lexeme: ""},
 	}
 

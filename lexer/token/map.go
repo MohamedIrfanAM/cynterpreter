@@ -88,6 +88,7 @@ var TokenMap map[TokenType]string = map[TokenType]string{
 	94: "FLOAT_LITERAL",
 	95: "CHAR_LITERAL",
 	96: "STRING_LITERAL",
+	97: "BOOL_LITERAL",
 }
 
 var PunctuatorMap map[byte]TokenType = map[byte]TokenType{
@@ -177,6 +178,8 @@ var KeywordMap map[string]TokenType = map[string]TokenType{
 	"void":     VOID,
 	"volatile": VOLATILE,
 	"while":    WHILE,
+	"true":     BOOL_LITERAL,
+	"false":    BOOL_LITERAL,
 }
 
 var OpSymbols []byte = []byte{

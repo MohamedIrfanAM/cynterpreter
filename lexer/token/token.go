@@ -104,6 +104,7 @@ const (
 	FLOAT_LITERAL  TokenType = 94 // floating-point constants
 	CHAR_LITERAL   TokenType = 95 // character constants
 	STRING_LITERAL TokenType = 96 // string literals
+	BOOL_LITERAL   TokenType = 97 // Boolean literal
 )
 
 func (t TokenType) String() string {
