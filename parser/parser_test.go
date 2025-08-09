@@ -42,6 +42,42 @@ func TestIntegerLiterals(t *testing.T) {
 	}
 }
 
+func TestIdentifierExpressios(t *testing.T) {
+	input := `
+	abc;
+	count;
+	name;
+	`
+	tests := []string{"abc", "count", "name"}
+
+	p := New(input)
+
+	program := p.ParseProgram()
+
+	if len(p.Errors()) != 0 {
+		for _, err := range p.Errors() {
+			t.Errorf("Parser Error: %s\n", err.Error())
+		}
+		t.Fatal("Exiting now!")
+	}
+
+	statements := program.Statements
+
+	if len(statements) != len(tests) {
+		t.Fatalf("Parser Error: Lenght of statements not correct, expected %v, got %v", len(tests), len(statements))
+	}
+
+	for i, statement := range statements {
+		stmnt, ok := statement.(*ast.ExpressionStatement)
+		if !ok {
+			t.Errorf("Statement type not matching, expected ast.ExpressionStatement, got %T", stmnt)
+		}
+
+		testIdentifierExpression(t, stmnt.Expression, tests[i])
+	}
+
+}
+
 func testIntegralLiteral(t *testing.T, expression ast.Expression, exptectedValue int) {
 
 	expr, ok := expression.(*ast.IntegerLiteral)
@@ -55,6 +91,22 @@ func testIntegralLiteral(t *testing.T, expression ast.Expression, exptectedValue
 
 	if expr.TokenLexeme() != strconv.Itoa(exptectedValue) || expr.Value != int64(exptectedValue) {
 		t.Errorf("Value not correct, Exptected Lexeme - %s, Got Lexeme - %s, Expected Value - %d, Got value - %d", strconv.Itoa(exptectedValue), expr.TokenLexeme(), exptectedValue, expr.Value)
+	}
+}
+
+func testIdentifierExpression(t *testing.T, expression ast.Expression, expectedValue string) {
+
+	expr, ok := expression.(*ast.IdentifierExpression)
+	if !ok {
+		t.Errorf("Expression is not of exptected type ast.IdentifierExpression, got %T", expr)
+	}
+
+	if expr.Token.TokenType != token.IDENTIFIER {
+		t.Errorf("Token type is not IDENTIFIER")
+	}
+
+	if expr.TokenLexeme() != expectedValue || expr.Value != expectedValue {
+		t.Errorf("Value not correct, Exptected Lexeme - %s, Got Lexeme - %s, Expected Value - %s, Got value - %s", expectedValue, expr.TokenLexeme(), expectedValue, expr.Value)
 	}
 }
 
@@ -114,30 +166,36 @@ func TestInfixExpressions(t *testing.T) {
 
 func TestExpressions(t *testing.T) {
 	input := `
-	5+3;
-	6+9*2;
-	5/1+4;
-	3*4+5/2-1;
-	2+3*4-5;
-	7+6*5+4/2;
-	(2+3)*4;
-	5*(6+7);
-	(3+4)*(5-2);
-	((2+3)*4)-5;
-	7+(6*(5+4));
+	a+b;
+	x*y+z;
+	(a+b)*c;
+	5*(x+y);
+	(a+b)*(c-d);
+	((a+b)*c)-d;
+	7+(x*(y+z));
+	count+value;
+	5*count+value;
+	(count+value)*factor;
+	5*(count+value);
+	(count+value)*(factor-constant);
+	((count+value)*factor)-constant;
+	7+(count*(value+factor));
 	`
 	expected := []string{
-		"(5 + 3)",
-		"(6 + (9 * 2))",
-		"((5 / 1) + 4)",
-		"(((3 * 4) + (5 / 2)) - 1)",
-		"((2 + (3 * 4)) - 5)",
-		"((7 + (6 * 5)) + (4 / 2))",
-		"((2 + 3) * 4)",
-		"(5 * (6 + 7))",
-		"((3 + 4) * (5 - 2))",
-		"(((2 + 3) * 4) - 5)",
-		"(7 + (6 * (5 + 4)))",
+		"(a + b)",
+		"((x * y) + z)",
+		"((a + b) * c)",
+		"(5 * (x + y))",
+		"((a + b) * (c - d))",
+		"(((a + b) * c) - d)",
+		"(7 + (x * (y + z)))",
+		"(count + value)",
+		"((5 * count) + value)",
+		"((count + value) * factor)",
+		"(5 * (count + value))",
+		"((count + value) * (factor - constant))",
+		"(((count + value) * factor) - constant)",
+		"(7 + (count * (value + factor)))",
 	}
 
 	p := New(input)

@@ -38,6 +38,7 @@ func New(input string) *Parser {
 
 	p.registerPrefixFunc(token.INT_LITERAL, p.parseIntegerLiteral)
 	p.registerPrefixFunc(token.LPAREN, p.parseGroupedExpression)
+	p.registerPrefixFunc(token.IDENTIFIER, p.parseIdentifierExpression)
 
 	p.registerInfixFunc(token.PLUS, p.parseInfixExpression)
 	p.registerInfixFunc(token.MINUS, p.parseInfixExpression)

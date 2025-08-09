@@ -66,6 +66,13 @@ func (p *Parser) parseIntegerLiteral() ast.Expression {
 	}
 }
 
+func (p *Parser) parseIdentifierExpression() ast.Expression {
+	return &ast.IdentifierExpression{
+		Token: p.curToken,
+		Value: p.curToken.Lexeme,
+	}
+}
+
 func (p *Parser) parseInfixExpression(leftExp ast.Expression) ast.Expression {
 	exp := &ast.InfixExpression{
 		Token:   p.curToken,
