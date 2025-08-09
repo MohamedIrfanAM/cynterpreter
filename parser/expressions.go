@@ -90,6 +90,18 @@ func (p *Parser) parseFloatLiteral() ast.Expression {
 	}
 }
 
+func (p *Parser) parseStringLiteral() ast.Expression {
+	val, err := strconv.Unquote(p.curToken.Lexeme)
+	if err != nil {
+		p.errors = append(p.errors, fmt.Errorf("parser Error: Error parsing String literal %s", p.curToken.Lexeme))
+		return nil
+	}
+	return &ast.StringLiteral{
+		Token: p.curToken,
+		Value: val,
+	}
+}
+
 func (p *Parser) parseIdentifierExpression() ast.Expression {
 	return &ast.IdentifierExpression{
 		Token: p.curToken,
