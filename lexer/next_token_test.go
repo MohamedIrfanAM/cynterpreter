@@ -212,3 +212,264 @@ func TestLiterals(t *testing.T) {
 		}
 	}
 }
+
+func TestExpressionTokens(t *testing.T) {
+	var input = `
+	a+b;
+	x*y+z;
+	(a+b)*c;
+	5*(x+y);
+	(a+b)*(c-d);
+	((a+b)*c)-d;
+	7+(x*(y+z));
+	count+value;
+	5*count+value;
+	(count+value)*factor;
+	5*(count+value);
+	(count+value)*(factor-constant);
+	((count+value)*factor)-constant;
+	7+(count*(value+factor));
+	-5;
+	+10;
+	-x+y;
+	-(a+b);
+	-5*3;
+	3*-5;
+	-a*b+c;
+	3.14+2.5;
+	'a'+'b';
+	"hello"+"world";
+	5.5*2.0;
+	-3.14;
+	+2.71;
+	count+-5;
+	-value*factor;
+	"str"+variable;
+	'x'*2;
+	-(3.14+2.5);
+	`
+
+	expectedTokens := []token.Token{
+		{TokenType: token.IDENTIFIER, Lexeme: "a"},
+		{TokenType: token.PLUS, Lexeme: "+"},
+		{TokenType: token.IDENTIFIER, Lexeme: "b"},
+		{TokenType: token.SEMCOL, Lexeme: ";"},
+		{TokenType: token.IDENTIFIER, Lexeme: "x"},
+		{TokenType: token.ASTER, Lexeme: "*"},
+		{TokenType: token.IDENTIFIER, Lexeme: "y"},
+		{TokenType: token.PLUS, Lexeme: "+"},
+		{TokenType: token.IDENTIFIER, Lexeme: "z"},
+		{TokenType: token.SEMCOL, Lexeme: ";"},
+		{TokenType: token.LPAREN, Lexeme: "("},
+		{TokenType: token.IDENTIFIER, Lexeme: "a"},
+		{TokenType: token.PLUS, Lexeme: "+"},
+		{TokenType: token.IDENTIFIER, Lexeme: "b"},
+		{TokenType: token.RPAREN, Lexeme: ")"},
+		{TokenType: token.ASTER, Lexeme: "*"},
+		{TokenType: token.IDENTIFIER, Lexeme: "c"},
+		{TokenType: token.SEMCOL, Lexeme: ";"},
+		{TokenType: token.INT_LITERAL, Lexeme: "5"},
+		{TokenType: token.ASTER, Lexeme: "*"},
+		{TokenType: token.LPAREN, Lexeme: "("},
+		{TokenType: token.IDENTIFIER, Lexeme: "x"},
+		{TokenType: token.PLUS, Lexeme: "+"},
+		{TokenType: token.IDENTIFIER, Lexeme: "y"},
+		{TokenType: token.RPAREN, Lexeme: ")"},
+		{TokenType: token.SEMCOL, Lexeme: ";"},
+		{TokenType: token.LPAREN, Lexeme: "("},
+		{TokenType: token.IDENTIFIER, Lexeme: "a"},
+		{TokenType: token.PLUS, Lexeme: "+"},
+		{TokenType: token.IDENTIFIER, Lexeme: "b"},
+		{TokenType: token.RPAREN, Lexeme: ")"},
+		{TokenType: token.ASTER, Lexeme: "*"},
+		{TokenType: token.LPAREN, Lexeme: "("},
+		{TokenType: token.IDENTIFIER, Lexeme: "c"},
+		{TokenType: token.MINUS, Lexeme: "-"},
+		{TokenType: token.IDENTIFIER, Lexeme: "d"},
+		{TokenType: token.RPAREN, Lexeme: ")"},
+		{TokenType: token.SEMCOL, Lexeme: ";"},
+		{TokenType: token.LPAREN, Lexeme: "("},
+		{TokenType: token.LPAREN, Lexeme: "("},
+		{TokenType: token.IDENTIFIER, Lexeme: "a"},
+		{TokenType: token.PLUS, Lexeme: "+"},
+		{TokenType: token.IDENTIFIER, Lexeme: "b"},
+		{TokenType: token.RPAREN, Lexeme: ")"},
+		{TokenType: token.ASTER, Lexeme: "*"},
+		{TokenType: token.IDENTIFIER, Lexeme: "c"},
+		{TokenType: token.RPAREN, Lexeme: ")"},
+		{TokenType: token.MINUS, Lexeme: "-"},
+		{TokenType: token.IDENTIFIER, Lexeme: "d"},
+		{TokenType: token.SEMCOL, Lexeme: ";"},
+		{TokenType: token.INT_LITERAL, Lexeme: "7"},
+		{TokenType: token.PLUS, Lexeme: "+"},
+		{TokenType: token.LPAREN, Lexeme: "("},
+		{TokenType: token.IDENTIFIER, Lexeme: "x"},
+		{TokenType: token.ASTER, Lexeme: "*"},
+		{TokenType: token.LPAREN, Lexeme: "("},
+		{TokenType: token.IDENTIFIER, Lexeme: "y"},
+		{TokenType: token.PLUS, Lexeme: "+"},
+		{TokenType: token.IDENTIFIER, Lexeme: "z"},
+		{TokenType: token.RPAREN, Lexeme: ")"},
+		{TokenType: token.RPAREN, Lexeme: ")"},
+		{TokenType: token.SEMCOL, Lexeme: ";"},
+		{TokenType: token.IDENTIFIER, Lexeme: "count"},
+		{TokenType: token.PLUS, Lexeme: "+"},
+		{TokenType: token.IDENTIFIER, Lexeme: "value"},
+		{TokenType: token.SEMCOL, Lexeme: ";"},
+		{TokenType: token.INT_LITERAL, Lexeme: "5"},
+		{TokenType: token.ASTER, Lexeme: "*"},
+		{TokenType: token.IDENTIFIER, Lexeme: "count"},
+		{TokenType: token.PLUS, Lexeme: "+"},
+		{TokenType: token.IDENTIFIER, Lexeme: "value"},
+		{TokenType: token.SEMCOL, Lexeme: ";"},
+		{TokenType: token.LPAREN, Lexeme: "("},
+		{TokenType: token.IDENTIFIER, Lexeme: "count"},
+		{TokenType: token.PLUS, Lexeme: "+"},
+		{TokenType: token.IDENTIFIER, Lexeme: "value"},
+		{TokenType: token.RPAREN, Lexeme: ")"},
+		{TokenType: token.ASTER, Lexeme: "*"},
+		{TokenType: token.IDENTIFIER, Lexeme: "factor"},
+		{TokenType: token.SEMCOL, Lexeme: ";"},
+		{TokenType: token.INT_LITERAL, Lexeme: "5"},
+		{TokenType: token.ASTER, Lexeme: "*"},
+		{TokenType: token.LPAREN, Lexeme: "("},
+		{TokenType: token.IDENTIFIER, Lexeme: "count"},
+		{TokenType: token.PLUS, Lexeme: "+"},
+		{TokenType: token.IDENTIFIER, Lexeme: "value"},
+		{TokenType: token.RPAREN, Lexeme: ")"},
+		{TokenType: token.SEMCOL, Lexeme: ";"},
+		{TokenType: token.LPAREN, Lexeme: "("},
+		{TokenType: token.IDENTIFIER, Lexeme: "count"},
+		{TokenType: token.PLUS, Lexeme: "+"},
+		{TokenType: token.IDENTIFIER, Lexeme: "value"},
+		{TokenType: token.RPAREN, Lexeme: ")"},
+		{TokenType: token.ASTER, Lexeme: "*"},
+		{TokenType: token.LPAREN, Lexeme: "("},
+		{TokenType: token.IDENTIFIER, Lexeme: "factor"},
+		{TokenType: token.MINUS, Lexeme: "-"},
+		{TokenType: token.IDENTIFIER, Lexeme: "constant"},
+		{TokenType: token.RPAREN, Lexeme: ")"},
+		{TokenType: token.SEMCOL, Lexeme: ";"},
+		{TokenType: token.LPAREN, Lexeme: "("},
+		{TokenType: token.LPAREN, Lexeme: "("},
+		{TokenType: token.IDENTIFIER, Lexeme: "count"},
+		{TokenType: token.PLUS, Lexeme: "+"},
+		{TokenType: token.IDENTIFIER, Lexeme: "value"},
+		{TokenType: token.RPAREN, Lexeme: ")"},
+		{TokenType: token.ASTER, Lexeme: "*"},
+		{TokenType: token.IDENTIFIER, Lexeme: "factor"},
+		{TokenType: token.RPAREN, Lexeme: ")"},
+		{TokenType: token.MINUS, Lexeme: "-"},
+		{TokenType: token.IDENTIFIER, Lexeme: "constant"},
+		{TokenType: token.SEMCOL, Lexeme: ";"},
+		{TokenType: token.INT_LITERAL, Lexeme: "7"},
+		{TokenType: token.PLUS, Lexeme: "+"},
+		{TokenType: token.LPAREN, Lexeme: "("},
+		{TokenType: token.IDENTIFIER, Lexeme: "count"},
+		{TokenType: token.ASTER, Lexeme: "*"},
+		{TokenType: token.LPAREN, Lexeme: "("},
+		{TokenType: token.IDENTIFIER, Lexeme: "value"},
+		{TokenType: token.PLUS, Lexeme: "+"},
+		{TokenType: token.IDENTIFIER, Lexeme: "factor"},
+		{TokenType: token.RPAREN, Lexeme: ")"},
+		{TokenType: token.RPAREN, Lexeme: ")"},
+		{TokenType: token.SEMCOL, Lexeme: ";"},
+		{TokenType: token.MINUS, Lexeme: "-"},
+		{TokenType: token.INT_LITERAL, Lexeme: "5"},
+		{TokenType: token.SEMCOL, Lexeme: ";"},
+		{TokenType: token.PLUS, Lexeme: "+"},
+		{TokenType: token.INT_LITERAL, Lexeme: "10"},
+		{TokenType: token.SEMCOL, Lexeme: ";"},
+		{TokenType: token.MINUS, Lexeme: "-"},
+		{TokenType: token.IDENTIFIER, Lexeme: "x"},
+		{TokenType: token.PLUS, Lexeme: "+"},
+		{TokenType: token.IDENTIFIER, Lexeme: "y"},
+		{TokenType: token.SEMCOL, Lexeme: ";"},
+		{TokenType: token.MINUS, Lexeme: "-"},
+		{TokenType: token.LPAREN, Lexeme: "("},
+		{TokenType: token.IDENTIFIER, Lexeme: "a"},
+		{TokenType: token.PLUS, Lexeme: "+"},
+		{TokenType: token.IDENTIFIER, Lexeme: "b"},
+		{TokenType: token.RPAREN, Lexeme: ")"},
+		{TokenType: token.SEMCOL, Lexeme: ";"},
+		{TokenType: token.MINUS, Lexeme: "-"},
+		{TokenType: token.INT_LITERAL, Lexeme: "5"},
+		{TokenType: token.ASTER, Lexeme: "*"},
+		{TokenType: token.INT_LITERAL, Lexeme: "3"},
+		{TokenType: token.SEMCOL, Lexeme: ";"},
+		{TokenType: token.INT_LITERAL, Lexeme: "3"},
+		{TokenType: token.ASTER, Lexeme: "*"},
+		{TokenType: token.MINUS, Lexeme: "-"},
+		{TokenType: token.INT_LITERAL, Lexeme: "5"},
+		{TokenType: token.SEMCOL, Lexeme: ";"},
+		{TokenType: token.MINUS, Lexeme: "-"},
+		{TokenType: token.IDENTIFIER, Lexeme: "a"},
+		{TokenType: token.ASTER, Lexeme: "*"},
+		{TokenType: token.IDENTIFIER, Lexeme: "b"},
+		{TokenType: token.PLUS, Lexeme: "+"},
+		{TokenType: token.IDENTIFIER, Lexeme: "c"},
+		{TokenType: token.SEMCOL, Lexeme: ";"},
+		{TokenType: token.FLOAT_LITERAL, Lexeme: "3.14"},
+		{TokenType: token.PLUS, Lexeme: "+"},
+		{TokenType: token.FLOAT_LITERAL, Lexeme: "2.5"},
+		{TokenType: token.SEMCOL, Lexeme: ";"},
+		{TokenType: token.CHAR_LITERAL, Lexeme: "'a'"},
+		{TokenType: token.PLUS, Lexeme: "+"},
+		{TokenType: token.CHAR_LITERAL, Lexeme: "'b'"},
+		{TokenType: token.SEMCOL, Lexeme: ";"},
+		{TokenType: token.STRING_LITERAL, Lexeme: "\"hello\""},
+		{TokenType: token.PLUS, Lexeme: "+"},
+		{TokenType: token.STRING_LITERAL, Lexeme: "\"world\""},
+		{TokenType: token.SEMCOL, Lexeme: ";"},
+		{TokenType: token.FLOAT_LITERAL, Lexeme: "5.5"},
+		{TokenType: token.ASTER, Lexeme: "*"},
+		{TokenType: token.FLOAT_LITERAL, Lexeme: "2.0"},
+		{TokenType: token.SEMCOL, Lexeme: ";"},
+		{TokenType: token.MINUS, Lexeme: "-"},
+		{TokenType: token.FLOAT_LITERAL, Lexeme: "3.14"},
+		{TokenType: token.SEMCOL, Lexeme: ";"},
+		{TokenType: token.PLUS, Lexeme: "+"},
+		{TokenType: token.FLOAT_LITERAL, Lexeme: "2.71"},
+		{TokenType: token.SEMCOL, Lexeme: ";"},
+		{TokenType: token.IDENTIFIER, Lexeme: "count"},
+		{TokenType: token.PLUS, Lexeme: "+"},
+		{TokenType: token.MINUS, Lexeme: "-"},
+		{TokenType: token.INT_LITERAL, Lexeme: "5"},
+		{TokenType: token.SEMCOL, Lexeme: ";"},
+		{TokenType: token.MINUS, Lexeme: "-"},
+		{TokenType: token.IDENTIFIER, Lexeme: "value"},
+		{TokenType: token.ASTER, Lexeme: "*"},
+		{TokenType: token.IDENTIFIER, Lexeme: "factor"},
+		{TokenType: token.SEMCOL, Lexeme: ";"},
+		{TokenType: token.STRING_LITERAL, Lexeme: "\"str\""},
+		{TokenType: token.PLUS, Lexeme: "+"},
+		{TokenType: token.IDENTIFIER, Lexeme: "variable"},
+		{TokenType: token.SEMCOL, Lexeme: ";"},
+		{TokenType: token.CHAR_LITERAL, Lexeme: "'x'"},
+		{TokenType: token.ASTER, Lexeme: "*"},
+		{TokenType: token.INT_LITERAL, Lexeme: "2"},
+		{TokenType: token.SEMCOL, Lexeme: ";"},
+		{TokenType: token.MINUS, Lexeme: "-"},
+		{TokenType: token.LPAREN, Lexeme: "("},
+		{TokenType: token.FLOAT_LITERAL, Lexeme: "3.14"},
+		{TokenType: token.PLUS, Lexeme: "+"},
+		{TokenType: token.FLOAT_LITERAL, Lexeme: "2.5"},
+		{TokenType: token.RPAREN, Lexeme: ")"},
+		{TokenType: token.SEMCOL, Lexeme: ";"},
+		{TokenType: token.EOF, Lexeme: ""},
+	}
+
+	var l = New(input)
+
+	for i, expectedToken := range expectedTokens {
+		var tkn token.Token = l.NextToken()
+
+		if tkn.TokenType != expectedToken.TokenType {
+			t.Errorf("[%d] - Wrong TokenType, Expected - %s, got - %s", i, expectedToken.TokenType, tkn.TokenType)
+		}
+
+		if tkn.Lexeme != expectedToken.Lexeme {
+			t.Fatalf("[%d] - Wrong Lexeme, Expected - %s, got - %s", i, expectedToken.Lexeme, tkn.Lexeme)
+		}
+	}
+}

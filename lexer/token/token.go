@@ -242,3 +242,12 @@ func IsWordSymbol(ch byte) bool {
 func IsWordStartSymbol(ch byte) bool {
 	return IsLetter(ch) || ch == '_'
 }
+
+func IsValidOperatorPrefix(str string) bool {
+	for op := range OperatorMap {
+		if strings.HasPrefix(op, str) {
+			return true
+		}
+	}
+	return false
+}

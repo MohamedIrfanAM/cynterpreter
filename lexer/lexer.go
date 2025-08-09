@@ -88,7 +88,7 @@ func (l *Lexer) NextToken() token.Token {
 
 func (l *Lexer) readOperator() string {
 	position := l.position
-	for token.IsOperatorSymbol(l.peekChar()) {
+	for token.IsOperatorSymbol(l.peekChar()) && token.IsValidOperatorPrefix(l.input[position:l.pointer+1]) {
 		l.readChar()
 	}
 	return l.input[position:l.pointer]
