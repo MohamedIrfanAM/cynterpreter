@@ -194,7 +194,6 @@ func (p *Parser) parseFunctionLiteral(funcIdentifier *ast.IdentifierExpression) 
 }
 
 func (p *Parser) parseFunctionParams() []*ast.Parameter {
-	p.nextToken()
 	var params []*ast.Parameter
 	if p.curTokenIs(token.RPAREN) {
 		return params

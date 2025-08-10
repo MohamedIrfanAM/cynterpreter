@@ -38,7 +38,7 @@ func (p *Parser) parseDeclarationStatement() *ast.DeclarationStatement {
 	p.nextToken()
 	if p.curTokenIs(token.SEMCOL) {
 		return stmnt
-	} else if p.curTokenIs(token.RPAREN) {
+	} else if p.curTokenIs(token.LPAREN) {
 		stmnt.Literal = p.parseFunctionLiteral(stmnt.Identifier)
 	} else {
 		if p.curToken.TokenType != token.ASSIGN {

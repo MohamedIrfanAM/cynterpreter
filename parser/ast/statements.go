@@ -40,7 +40,7 @@ func (ds *DeclarationStatement) String() string {
 	var str strings.Builder
 	str.WriteString(ds.TokenLexeme() + " ")
 
-	if _, ok := ds.Literal.(*FunctionLiteral); !ok {
+	if _, ok := ds.Literal.(*FunctionLiteral); ok {
 		str.WriteString(ds.Literal.String())
 	} else if ds.Literal != nil {
 		str.WriteString(ds.Identifier.Value)
@@ -57,9 +57,9 @@ type Block struct {
 
 func (blk Block) String() string {
 	var str strings.Builder
-	str.WriteString("\n{")
+	str.WriteString("{\n")
 	for _, stmnt := range blk.Statements {
-		str.WriteString(stmnt.String() + ";\n")
+		str.WriteString("\t" + stmnt.String() + ";\n")
 	}
 	str.WriteString("}\n")
 	return str.String()

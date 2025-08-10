@@ -143,6 +143,8 @@ func TestDeclarationStatements(t *testing.T) {
 	bool comparison = a > b;
 	int funcCall = add(5, 10);
 	float nested = calculate(x + y, z);
+	int x;
+	char y;
 	`
 	expected := []struct {
 		tokenType  token.TokenType
@@ -165,6 +167,8 @@ func TestDeclarationStatements(t *testing.T) {
 		{token.BOOL, "comparison", "(a > b)"},
 		{token.INT, "funcCall", "add(5, 10)"},
 		{token.FLOAT, "nested", "calculate((x + y), z)"},
+		{token.INT, "x", ""},
+		{token.CHAR, "y", ""},
 	}
 
 	p := New(input)
@@ -196,8 +200,90 @@ func TestDeclarationStatements(t *testing.T) {
 			t.Errorf("[%d] - Declaration Identifier name not correct, expected %s, got %s", i, expected[i].identifier, stmnt.Identifier.String())
 		}
 
-		if stmnt.Literal.String() != expected[i].literal {
+		if stmnt.Literal != nil && stmnt.Literal.String() != expected[i].literal {
 			t.Errorf("[%d] - Declaration Literal not correct, expected %s, got %s", i, expected[i].literal, stmnt.Literal.String())
+		}
+	}
+}
+
+func TestFunctionDeclarationStatemenet(t *testing.T) {
+	input := `
+	int testFunc(int a, char b, float c, string d, bool e){
+		int x = a;
+		int y = x;
+		int g;
+	}
+	`
+
+	p := New(input)
+	program := p.ParseProgram()
+
+	if len(p.Errors()) != 0 {
+		for _, err := range p.Errors() {
+			t.Errorf("Parser Error: %s\n", err.Error())
+		}
+		t.Fatal("Exiting now!")
+	}
+
+	if len(program.Statements) != 1 {
+		t.Fatalf("Number of statements not valid, expected 1, got %d", len(program.Statements))
+	}
+
+	stmnt, ok := program.Statements[0].(*ast.DeclarationStatement)
+
+	if !ok {
+		t.Fatalf("Statement is not of type ast.DeclarationStatement, got %T", program.Statements[0])
+	}
+
+	if stmnt.Type != token.INT {
+		t.Errorf("Function return type not correct, expected %s, got %s", token.INT, stmnt.Type)
+	}
+
+	if stmnt.Identifier.String() != "testFunc" {
+		t.Errorf("Function name not correct, expected %s, got %s", "testFunc", stmnt.Identifier.String())
+	}
+
+	funcLiteral, ok := stmnt.Literal.(*ast.FunctionLiteral)
+	if !ok {
+		t.Fatalf("Literal is not of type ast.FunctionLiteral, got %T", stmnt.Literal)
+	}
+
+	expectedParams := []struct {
+		paramType token.TokenType
+		paramName string
+	}{
+		{token.INT, "a"},
+		{token.CHAR, "b"},
+		{token.FLOAT, "c"},
+		{token.STRING, "d"},
+		{token.BOOL, "e"},
+	}
+
+	if len(funcLiteral.Params) != len(expectedParams) {
+		t.Fatalf("Number of parameters not correct, expected %d, got %d", len(expectedParams), len(funcLiteral.Params))
+	}
+
+	for i, param := range funcLiteral.Params {
+		if param.Type != expectedParams[i].paramType {
+			t.Errorf("Parameter %d type not correct, expected %s, got %s", i, expectedParams[i].paramType, param.Type)
+		}
+		if param.Identifier.String() != expectedParams[i].paramName {
+			t.Errorf("Parameter %d name not correct, expected %s, got %s", i, expectedParams[i].paramName, param.Identifier.String())
+		}
+	}
+
+	if funcLiteral.Block == nil {
+		t.Fatal("Function block is nil")
+	}
+
+	if len(funcLiteral.Block.Statements) != 3 {
+		t.Fatalf("Number of statements in function body not correct, expected 3, got %d", len(funcLiteral.Block.Statements))
+	}
+
+	for i, stmt := range funcLiteral.Block.Statements {
+		_, ok := stmt.(*ast.DeclarationStatement)
+		if !ok {
+			t.Errorf("Statement %d in function body is not a DeclarationStatement, got %T", i, stmt)
 		}
 	}
 }
