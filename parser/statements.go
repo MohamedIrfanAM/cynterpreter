@@ -9,7 +9,7 @@ import (
 
 func (p *Parser) ParseStatement() ast.Statement {
 	switch p.curToken.TokenType {
-	case token.INT, token.CHAR, token.FLOAT, token.VOID:
+	case token.INT, token.CHAR, token.FLOAT, token.VOID, token.BOOL, token.STRING:
 		return p.parseDeclarationStatement()
 	default:
 		return p.parseExpressionStatement()

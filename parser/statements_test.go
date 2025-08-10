@@ -18,6 +18,13 @@ func TestDeclarationStatements(t *testing.T) {
 	char newline = '\n';
 	float negative = -2.5;
 	bool falseBool = false;
+	int sum = 10 + 5;
+	int diff = a - b;
+	float product = 3.14 * 2;
+	int complex = (x + y) * z;
+	bool comparison = a > b;
+	int funcCall = add(5, 10);
+	float nested = calculate(x + y, z);
 	`
 	expected := []struct {
 		tokenType  token.TokenType
@@ -31,8 +38,15 @@ func TestDeclarationStatements(t *testing.T) {
 		{token.STRING, "name", "\"hello\""},
 		{token.INT, "zero", "0"},
 		{token.CHAR, "newline", "'\\n'"},
-		{token.FLOAT, "negative", "-2.5"},
+		{token.FLOAT, "negative", "(-2.5)"},
 		{token.BOOL, "falseBool", "false"},
+		{token.INT, "sum", "(10 + 5)"},
+		{token.INT, "diff", "(a - b)"},
+		{token.FLOAT, "product", "(3.14 * 2)"},
+		{token.INT, "complex", "((x + y) * z)"},
+		{token.BOOL, "comparison", "(a > b)"},
+		{token.INT, "funcCall", "add(5, 10)"},
+		{token.FLOAT, "nested", "calculate((x + y), z)"},
 	}
 
 	p := New(input)
