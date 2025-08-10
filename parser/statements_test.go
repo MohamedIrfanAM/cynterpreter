@@ -7,6 +7,124 @@ import (
 	"github.com/mohamedirfanam/cynterpreter/parser/ast"
 )
 
+func TestExpressionStatements(t *testing.T) {
+	input := `
+	a+b;
+	x*y+z;
+	(a+b)*c;
+	5*(x+y);
+	(a+b)*(c-d);
+	((a+b)*c)-d;
+	7+(x*(y+z));
+	count+value;
+	5*count+value;
+	(count+value)*factor;
+	5*(count+value);
+	(count+value)*(factor-constant);
+	((count+value)*factor)-constant;
+	7+(count*(value+factor));
+	-5;
+	+10;
+	-x+y;
+	-(a+b);
+	-5*3;
+	3*-5;
+	-a*b+c;
+	3.14+2.5;
+	'a'+'b';
+	"hello"+"world";
+	5.5*2.0;
+	-3.14;
+	+2.71;
+	count+-5;
+	-value*factor;
+	"str"+variable;
+	'x'*2;
+	-(3.14+2.5);
+	add();
+	func(5);
+	calc(x, y);
+	print("hello");
+	multiply(2, 3, 4);
+	nested(func(x), y);
+	add(5) + subtract(3);
+	multiply(add(2, 3), 4);
+	func(1, 2.5, "test");
+	process(count + value);
+	`
+	expected := []string{
+		"(a + b)",
+		"((x * y) + z)",
+		"((a + b) * c)",
+		"(5 * (x + y))",
+		"((a + b) * (c - d))",
+		"(((a + b) * c) - d)",
+		"(7 + (x * (y + z)))",
+		"(count + value)",
+		"((5 * count) + value)",
+		"((count + value) * factor)",
+		"(5 * (count + value))",
+		"((count + value) * (factor - constant))",
+		"(((count + value) * factor) - constant)",
+		"(7 + (count * (value + factor)))",
+		"(-5)",
+		"(+10)",
+		"((-x) + y)",
+		"(-(a + b))",
+		"((-5) * 3)",
+		"(3 * (-5))",
+		"(((-a) * b) + c)",
+		"(3.14 + 2.5)",
+		"('a' + 'b')",
+		"(\"hello\" + \"world\")",
+		"(5.5 * 2.0)",
+		"(-3.14)",
+		"(+2.71)",
+		"(count + (-5))",
+		"((-value) * factor)",
+		"(\"str\" + variable)",
+		"('x' * 2)",
+		"(-(3.14 + 2.5))",
+		"add()",
+		"func(5)",
+		"calc(x, y)",
+		"print(\"hello\")",
+		"multiply(2, 3, 4)",
+		"nested(func(x), y)",
+		"(add(5) + subtract(3))",
+		"multiply(add(2, 3), 4)",
+		"func(1, 2.5, \"test\")",
+		"process((count + value))",
+	}
+
+	p := New(input)
+	program := p.ParseProgram()
+
+	if len(p.Errors()) != 0 {
+		for _, err := range p.Errors() {
+			t.Errorf("Parser Error: %s\n", err.Error())
+		}
+		t.Fatal("Exiting now!")
+	}
+
+	if len(program.Statements) != len(expected) {
+		t.Fatalf("Expected %d statement, got %d", len(expected), len(program.Statements))
+	}
+
+	for i, statement := range program.Statements {
+		stmt, ok := statement.(*ast.ExpressionStatement)
+		if !ok {
+			t.Fatalf("Statement is not of type ast.ExpressionStatement, got %T", statement)
+		}
+
+		var expr ast.Expression = stmt.Expression
+
+		if expr.String() != expected[i] {
+			t.Errorf("Expression mismatch at index %d, expected %s, got %s", i, expected[i], expr.String())
+		}
+	}
+}
+
 func TestDeclarationStatements(t *testing.T) {
 	input := `
 	int x = 10;
