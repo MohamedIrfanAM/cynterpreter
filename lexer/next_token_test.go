@@ -97,7 +97,7 @@ func TestOperatorTokens(t *testing.T) {
 }
 
 func TestKeywordTokens(t *testing.T) {
-	var input = `auto break case char const continue default do double else enum extern float for goto if inline int long register restrict return short signed sizeof static struct switch typedef union unsigned void volatile while`
+	var input = `auto break case char const continue default do double else enum extern float for goto if inline int long register restrict return short signed sizeof static struct switch typedef union unsigned void volatile while bool string`
 
 	expectedTokens := []token.Token{
 		{TokenType: token.AUTO, Lexeme: "auto"},
@@ -134,6 +134,8 @@ func TestKeywordTokens(t *testing.T) {
 		{TokenType: token.VOID, Lexeme: "void"},
 		{TokenType: token.VOLATILE, Lexeme: "volatile"},
 		{TokenType: token.WHILE, Lexeme: "while"},
+		{TokenType: token.BOOL, Lexeme: "bool"},
+		{TokenType: token.STRING, Lexeme: "string"},
 		{TokenType: token.EOF, Lexeme: ""},
 	}
 

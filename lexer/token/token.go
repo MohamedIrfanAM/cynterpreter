@@ -97,6 +97,8 @@ const (
 	VOID     TokenType = 79 // void
 	VOLATILE TokenType = 80 // volatile
 	WHILE    TokenType = 81 // while
+	BOOL     TokenType = 82 // bool
+	STRING   TokenType = 83 // string
 
 	// Identifiers and Literals
 	IDENTIFIER     TokenType = 92 // user-defined names

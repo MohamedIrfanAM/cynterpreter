@@ -83,6 +83,8 @@ var TokenMap map[TokenType]string = map[TokenType]string{
 	79: "VOID",
 	80: "VOLATILE",
 	81: "WHILE",
+	82: "BOOL",
+	83: "STRING",
 	92: "IDENTIFIER",
 	93: "INT_LITERAL",
 	94: "FLOAT_LITERAL",
@@ -180,6 +182,8 @@ var KeywordMap map[string]TokenType = map[string]TokenType{
 	"while":    WHILE,
 	"true":     BOOL_LITERAL,
 	"false":    BOOL_LITERAL,
+	"bool":     BOOL,
+	"string":   STRING,
 }
 
 var OpSymbols []byte = []byte{
