@@ -1,12 +1,16 @@
 package parser
 
 import (
+	"fmt"
+
 	"github.com/mohamedirfanam/cynterpreter/lexer/token"
 	"github.com/mohamedirfanam/cynterpreter/parser/ast"
 )
 
 func (p *Parser) ParseStatement() ast.Statement {
-	switch p.curToken {
+	switch p.curToken.TokenType {
+	case token.INT, token.CHAR, token.FLOAT, token.VOID:
+		return p.parseDeclarationStatement()
 	default:
 		return p.parseExpressionStatement()
 	}
@@ -20,4 +24,26 @@ func (p *Parser) parseExpressionStatement() *ast.ExpressionStatement {
 		Token:      tkn,
 		Expression: exp,
 	}
+}
+
+func (p *Parser) parseDeclarationStatement() *ast.DeclarationStatement {
+	tkn := p.curToken
+	p.nextToken()
+	ident := p.parseIdentifierExpression()
+	var stmnt = &ast.DeclarationStatement{
+		Token:      tkn,
+		Type:       tkn.TokenType,
+		Identifier: ident.(*ast.IdentifierExpression),
+	}
+	p.nextToken()
+	if p.curTokenIs(token.SEMCOL) {
+		return stmnt
+	}
+	if p.curToken.TokenType != token.ASSIGN {
+		p.errors = append(p.errors, fmt.Errorf("expected '=' Sign for assigment in declaration, Got - %s", p.curToken.TokenType))
+	}
+	p.nextToken()
+	stmnt.Literal = p.parseExpression(LOWEST)
+	p.expectPeekToken(token.SEMCOL)
+	return stmnt
 }

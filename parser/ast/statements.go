@@ -1,6 +1,10 @@
 package ast
 
-import "github.com/mohamedirfanam/cynterpreter/lexer/token"
+import (
+	"strings"
+
+	"github.com/mohamedirfanam/cynterpreter/lexer/token"
+)
 
 // Expression Statement Node
 type ExpressionStatement struct {
@@ -16,4 +20,28 @@ func (es *ExpressionStatement) statementNode() {}
 
 func (es *ExpressionStatement) String() string {
 	return es.Expression.String()
+}
+
+type DeclarationStatement struct {
+	Token      token.Token
+	Type       token.TokenType
+	Identifier *IdentifierExpression
+	Literal    Expression
+}
+
+func (ds *DeclarationStatement) TokenLexeme() string {
+	return ds.Token.Lexeme
+}
+
+func (ds *DeclarationStatement) statementNode() {}
+
+func (ds *DeclarationStatement) String() string {
+	var str strings.Builder
+	str.WriteString(ds.TokenLexeme() + " ")
+	str.WriteString(ds.Identifier.Value)
+
+	if ds.Literal != nil {
+		str.WriteString(" = " + ds.String())
+	}
+	return str.String()
 }
