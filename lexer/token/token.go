@@ -254,3 +254,12 @@ func IsValidOperatorPrefix(str string) bool {
 	}
 	return false
 }
+
+func IsDatatype(tk TokenType) bool {
+	for _, v := range Datatypes {
+		if tk == v {
+			return true
+		}
+	}
+	return false
+}

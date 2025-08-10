@@ -22,6 +22,7 @@ func (es *ExpressionStatement) String() string {
 	return es.Expression.String()
 }
 
+// Declaration Statement
 type DeclarationStatement struct {
 	Token      token.Token
 	Type       token.TokenType
@@ -38,10 +39,28 @@ func (ds *DeclarationStatement) statementNode() {}
 func (ds *DeclarationStatement) String() string {
 	var str strings.Builder
 	str.WriteString(ds.TokenLexeme() + " ")
-	str.WriteString(ds.Identifier.Value)
 
-	if ds.Literal != nil {
-		str.WriteString(" = " + ds.String())
+	if _, ok := ds.Literal.(*FunctionLiteral); !ok {
+		str.WriteString(ds.Literal.String())
+	} else if ds.Literal != nil {
+		str.WriteString(ds.Identifier.Value)
+		str.WriteString(" = " + ds.Literal.String())
+	} else {
+		str.WriteString(ds.Identifier.Value)
 	}
+	return str.String()
+}
+
+type Block struct {
+	Statements []Statement
+}
+
+func (blk Block) String() string {
+	var str strings.Builder
+	str.WriteString("\n{")
+	for _, stmnt := range blk.Statements {
+		str.WriteString(stmnt.String() + ";\n")
+	}
+	str.WriteString("}\n")
 	return str.String()
 }

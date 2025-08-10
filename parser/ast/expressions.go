@@ -179,3 +179,44 @@ func (ce *CallExpression) String() string {
 	str.WriteByte(')')
 	return str.String()
 }
+
+// Function Literal Node
+type FunctionLiteral struct {
+	Token    token.Token
+	Function *IdentifierExpression
+	Params   []*Parameter
+	Block    *Block
+}
+
+func (fl *FunctionLiteral) TokenLexeme() string {
+	return fl.Token.Lexeme
+}
+
+func (fl *FunctionLiteral) expressionNode() {}
+
+func (fl *FunctionLiteral) String() string {
+	var str strings.Builder
+	str.WriteString(fl.Function.String() + "(")
+	for i, param := range fl.Params {
+		str.WriteString(param.String())
+		if i < len(fl.Params)-1 {
+			str.WriteString(",")
+		}
+	}
+	str.WriteString(")")
+	str.WriteString(fl.Block.String())
+	return str.String()
+}
+
+type Parameter struct {
+	Token      token.Token
+	Type       token.TokenType
+	Identifier *IdentifierExpression
+}
+
+func (param Parameter) TokenLexeme() string {
+	return param.Token.Lexeme
+}
+func (param Parameter) String() string {
+	return param.TokenLexeme() + " " + param.Identifier.String()
+}

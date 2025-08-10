@@ -180,3 +180,48 @@ func (p *Parser) parsePrefixExpression() ast.Expression {
 	exp.Exp = rexp
 	return exp
 }
+
+func (p *Parser) parseFunctionLiteral(funcIdentifier *ast.IdentifierExpression) *ast.FunctionLiteral {
+	expr := &ast.FunctionLiteral{
+		Token:    p.curToken,
+		Function: funcIdentifier,
+	}
+	p.nextToken()
+	expr.Params = p.parseFunctionParams()
+	p.expectPeekToken(token.LBRACE)
+	expr.Block = p.parseBlockStatement()
+	return expr
+}
+
+func (p *Parser) parseFunctionParams() []*ast.Parameter {
+	p.nextToken()
+	var params []*ast.Parameter
+	if p.curTokenIs(token.RPAREN) {
+		return params
+	}
+	params = append(params, p.parseFunctionParam())
+	for p.peekTokenIs(token.COMMA) {
+		p.nextToken()
+		p.nextToken()
+		params = append(params, p.parseFunctionParam())
+	}
+	if !p.expectPeekToken(token.RPAREN) {
+		return nil
+	}
+	return params
+}
+
+func (p *Parser) parseFunctionParam() *ast.Parameter {
+	if !token.IsDatatype(p.curToken.TokenType) {
+		p.errors = append(p.errors, fmt.Errorf("not valid datatype token for function parameter,got %s", p.curToken.TokenType))
+		return nil
+	}
+	param := &ast.Parameter{
+		Token: p.curToken,
+		Type:  p.curToken.TokenType,
+	}
+	p.nextToken()
+	ident := p.parseIdentifierExpression()
+	param.Identifier = ident.(*ast.IdentifierExpression)
+	return param
+}

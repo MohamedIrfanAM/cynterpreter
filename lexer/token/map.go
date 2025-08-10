@@ -193,3 +193,7 @@ var OpSymbols []byte = []byte{
 var WhiteSpaceSymbols = []byte{
 	' ', '\n', '\t', '\v', '\f', '\r',
 }
+
+var Datatypes = []TokenType{
+	INT, BOOL, STRING, FLOAT, CHAR, VOID, DOUBLE,
+}

@@ -38,12 +38,27 @@ func (p *Parser) parseDeclarationStatement() *ast.DeclarationStatement {
 	p.nextToken()
 	if p.curTokenIs(token.SEMCOL) {
 		return stmnt
+	} else if p.curTokenIs(token.RPAREN) {
+		stmnt.Literal = p.parseFunctionLiteral(stmnt.Identifier)
+	} else {
+		if p.curToken.TokenType != token.ASSIGN {
+			p.errors = append(p.errors, fmt.Errorf("expected '=' Sign for assigment in declaration, Got - %s", p.curToken.TokenType))
+		}
+		p.nextToken()
+		stmnt.Literal = p.parseExpression(LOWEST)
+		p.expectPeekToken(token.SEMCOL)
+
 	}
-	if p.curToken.TokenType != token.ASSIGN {
-		p.errors = append(p.errors, fmt.Errorf("expected '=' Sign for assigment in declaration, Got - %s", p.curToken.TokenType))
-	}
-	p.nextToken()
-	stmnt.Literal = p.parseExpression(LOWEST)
-	p.expectPeekToken(token.SEMCOL)
 	return stmnt
+}
+
+func (p *Parser) parseBlockStatement() *ast.Block {
+	p.nextToken()
+	blk := &ast.Block{}
+	for !p.curTokenIs(token.RBRACE) {
+		statement := p.ParseStatement()
+		blk.Statements = append(blk.Statements, statement)
+		p.nextToken()
+	}
+	return blk
 }
