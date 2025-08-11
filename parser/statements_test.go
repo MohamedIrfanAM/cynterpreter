@@ -489,3 +489,63 @@ func TestIfStatement(t *testing.T) {
 		}
 	}
 }
+
+func TestWhileLoopStatement(t *testing.T) {
+	input := `
+	while(count < 10 && flag == true){
+		int x = count;
+		count = count + 1;
+		int result = x * 2;
+	}
+	`
+
+	p := New(input)
+	program := p.ParseProgram()
+
+	if len(p.Errors()) != 0 {
+		for _, err := range p.Errors() {
+			t.Errorf("Parser Error: %s\n", err.Error())
+		}
+		t.Fatal("Exiting now!")
+	}
+
+	if len(program.Statements) != 1 {
+		t.Fatalf("Number of statements not valid, expected 1, got %d", len(program.Statements))
+	}
+
+	stmnt, ok := program.Statements[0].(*ast.WhileStatement)
+	if !ok {
+		t.Fatalf("Statement is not of type ast.WhileStatement, got %T", program.Statements[0])
+	}
+
+	expectedCondition := "((count < 10) && (flag == true))"
+	if stmnt.Condition.String() != expectedCondition {
+		t.Errorf("While condition not correct, expected %s, got %s", expectedCondition, stmnt.Condition.String())
+	}
+
+	if stmnt.Block == nil {
+		t.Fatal("While block is nil")
+	}
+
+	if len(stmnt.Block.Statements) != 3 {
+		t.Fatalf("Number of statements in while body not correct, expected 3, got %d", len(stmnt.Block.Statements))
+	}
+
+	// Check first statement is a declaration
+	_, ok = stmnt.Block.Statements[0].(*ast.DeclarationStatement)
+	if !ok {
+		t.Errorf("Statement 0 in while body is not a DeclarationStatement, got %T", stmnt.Block.Statements[0])
+	}
+
+	// Check second statement is an assignment
+	_, ok = stmnt.Block.Statements[1].(*ast.AssignmentStatement)
+	if !ok {
+		t.Errorf("Statement 1 in while body is not an AssignmentStatement, got %T", stmnt.Block.Statements[1])
+	}
+
+	// Check third statement is a declaration
+	_, ok = stmnt.Block.Statements[2].(*ast.DeclarationStatement)
+	if !ok {
+		t.Errorf("Statement 2 in while body is not a DeclarationStatement, got %T", stmnt.Block.Statements[2])
+	}
+}

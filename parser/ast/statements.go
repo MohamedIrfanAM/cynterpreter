@@ -130,3 +130,24 @@ func (as *AssignmentStatement) String() string {
 	}
 	return str.String()
 }
+
+// While loop
+type WhileStatement struct {
+	Token     token.Token
+	Condition Expression
+	Block     *Block
+}
+
+func (wl *WhileStatement) TokenLexeme() string {
+	return wl.Token.Lexeme
+}
+
+func (wl *WhileStatement) statementNode() {}
+
+func (wl *WhileStatement) String() string {
+	var str strings.Builder
+	str.WriteString("while (")
+	str.WriteString(wl.Condition.String() + ")")
+	str.WriteString(wl.Block.String())
+	return str.String()
+}
