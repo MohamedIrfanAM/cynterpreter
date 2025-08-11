@@ -5,8 +5,7 @@ import (
 	"fmt"
 	"io"
 
-	"github.com/mohamedirfanam/cynterpreter/lexer"
-	"github.com/mohamedirfanam/cynterpreter/lexer/token"
+	"github.com/mohamedirfanam/cynterpreter/parser"
 )
 
 func REPL(in io.Reader, out io.Writer) {
@@ -16,11 +15,18 @@ func REPL(in io.Reader, out io.Writer) {
 
 	for scanner.Scan() {
 
-		var l = lexer.New(scanner.Text())
+		var p = parser.New(scanner.Text())
 
-		for tkn := l.NextToken(); tkn.TokenType != token.EOF; tkn = l.NextToken() {
-			fmt.Fprintln(out, "Token = ", tkn.TokenType, ", Lexeme = ", tkn.Lexeme)
+		program := p.ParseProgram()
+
+		if len(p.Errors()) != 0 {
+			for _, err := range p.Errors() {
+				fmt.Fprintf(out, "Parser Error: %s\n", err.Error())
+			}
+			continue
 		}
+
+		fmt.Println(program.Statements[0])
 
 		fmt.Fprint(out, ">> ")
 	}
