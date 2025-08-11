@@ -287,3 +287,62 @@ func TestFunctionDeclarationStatemenet(t *testing.T) {
 		}
 	}
 }
+func TestReturnStatements(t *testing.T) {
+	input := `
+	return 5;
+	return x;
+	return a + b;
+	return multiply(2, 3);
+	return (x + y) * z;
+	return "hello world";
+	return 'a';
+	return 3.14;
+	return true;
+	return false;
+	return -5;
+	return !flag;
+	return calculate(x, y) + z;
+	return nested(func(a), b);
+	`
+	expected := []string{
+		"return 5",
+		"return x",
+		"return (a + b)",
+		"return multiply(2, 3)",
+		"return ((x + y) * z)",
+		"return \"hello world\"",
+		"return 'a'",
+		"return 3.14",
+		"return true",
+		"return false",
+		"return (-5)",
+		"return (!flag)",
+		"return (calculate(x, y) + z)",
+		"return nested(func(a), b)",
+	}
+
+	p := New(input)
+	program := p.ParseProgram()
+
+	if len(p.Errors()) != 0 {
+		for _, err := range p.Errors() {
+			t.Errorf("Parser Error: %s\n", err.Error())
+		}
+		t.Fatal("Exiting now!")
+	}
+
+	if len(program.Statements) != len(expected) {
+		t.Fatalf("Expected %d statements, got %d", len(expected), len(program.Statements))
+	}
+
+	for i, statement := range program.Statements {
+		stmt, ok := statement.(*ast.ReturnStatement)
+		if !ok {
+			t.Fatalf("Statement %d is not of type ast.ReturnStatement, got %T", i, statement)
+		}
+
+		if stmt.String() != expected[i] {
+			t.Errorf("Return statement mismatch at index %d, expected %s, got %s", i, expected[i], stmt.String())
+		}
+	}
+}

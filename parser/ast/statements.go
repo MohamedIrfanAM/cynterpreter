@@ -64,3 +64,18 @@ func (blk Block) String() string {
 	str.WriteString("}\n")
 	return str.String()
 }
+
+type ReturnStatement struct {
+	Token      token.Token
+	Expression Expression
+}
+
+func (rs *ReturnStatement) TokenLexeme() string {
+	return rs.Token.Lexeme
+}
+
+func (rs *ReturnStatement) statementNode() {}
+
+func (rs *ReturnStatement) String() string {
+	return "return " + rs.Expression.String()
+}

@@ -11,6 +11,8 @@ func (p *Parser) ParseStatement() ast.Statement {
 	switch p.curToken.TokenType {
 	case token.INT, token.CHAR, token.FLOAT, token.VOID, token.BOOL, token.STRING:
 		return p.parseDeclarationStatement()
+	case token.RETURN:
+		return p.parseReturnStatement()
 	default:
 		return p.parseExpressionStatement()
 	}
@@ -61,4 +63,15 @@ func (p *Parser) parseBlockStatement() *ast.Block {
 		p.nextToken()
 	}
 	return blk
+}
+
+func (p *Parser) parseReturnStatement() *ast.ReturnStatement {
+	stmnt := &ast.ReturnStatement{
+		Token: p.curToken,
+	}
+	p.nextToken()
+	expr := p.parseExpression(LOWEST)
+	stmnt.Expression = expr
+	p.expectPeekToken(token.SEMCOL)
+	return stmnt
 }
