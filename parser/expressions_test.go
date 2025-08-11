@@ -575,6 +575,19 @@ func TestExpressions(t *testing.T) {
 	multiply(add(2, 3), 4);
 	func(1, 2.5, "test");
 	process(count + value);
+	5 == 3;
+	x != y;
+	a > b;
+	count < limit;
+	value >= threshold;
+	score <= max;
+	x == y && a > b;
+	condition1 || condition2;
+	a > b && c < d;
+	x == y || a != b;
+	(a > b) && (c <= d);
+	x + y > z && result;
+	a == b || c > d && e < f;
 	`
 	expected := []string{
 		"(a + b)",
@@ -619,6 +632,19 @@ func TestExpressions(t *testing.T) {
 		"multiply(add(2, 3), 4)",
 		"func(1, 2.5, \"test\")",
 		"process((count + value))",
+		"(5 == 3)",
+		"(x != y)",
+		"(a > b)",
+		"(count < limit)",
+		"(value >= threshold)",
+		"(score <= max)",
+		"((x == y) && (a > b))",
+		"(condition1 || condition2)",
+		"((a > b) && (c < d))",
+		"((x == y) || (a != b))",
+		"((a > b) && (c <= d))",
+		"(((x + y) > z) && result)",
+		"((a == b) || ((c > d) && (e < f)))",
 	}
 
 	p := New(input)

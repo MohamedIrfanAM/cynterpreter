@@ -10,6 +10,8 @@ import (
 
 const (
 	LOWEST        = iota
+	OR            // ||
+	AND           // &&
 	EQUALS        // ==
 	LESSGREATER   // < > <= >=
 	SUMSUB        // + -
@@ -31,6 +33,8 @@ var precedences = map[token.TokenType]int{
 	token.GT:      LESSGREATER,
 	token.GE:      LESSGREATER,
 	token.LPAREN:  CALL,
+	token.AND:     AND,
+	token.OR:      OR,
 }
 
 func (p *Parser) parseExpression(precedence int) ast.Expression {
