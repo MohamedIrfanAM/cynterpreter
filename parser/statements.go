@@ -14,7 +14,11 @@ func (p *Parser) ParseStatement() ast.Statement {
 	case token.IF:
 		return p.parseIfStatement()
 	case token.IDENTIFIER:
-		return p.parseAssignmentStatement(true)
+		if token.IsAssignmentOp(p.peekToken.TokenType) {
+			return p.parseAssignmentStatement(true)
+		} else {
+			return p.parseExpressionStatement()
+		}
 	case token.RETURN:
 		return p.parseReturnStatement()
 	case token.WHILE:

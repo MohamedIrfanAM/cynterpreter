@@ -42,7 +42,7 @@ func TestIntegerLiterals(t *testing.T) {
 	}
 }
 
-func TestIdentifierExpressios(t *testing.T) {
+func TestIdentifierExpressions(t *testing.T) {
 	input := `
 	abc;
 	count;
