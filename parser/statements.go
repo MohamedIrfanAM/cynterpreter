@@ -11,6 +11,8 @@ func (p *Parser) ParseStatement() ast.Statement {
 	switch p.curToken.TokenType {
 	case token.INT, token.CHAR, token.FLOAT, token.VOID, token.BOOL, token.STRING:
 		return p.parseDeclarationStatement()
+	case token.IF:
+		return p.parseIfStatement()
 	case token.RETURN:
 		return p.parseReturnStatement()
 	default:
@@ -73,5 +75,21 @@ func (p *Parser) parseReturnStatement() *ast.ReturnStatement {
 	expr := p.parseExpression(LOWEST)
 	stmnt.Expression = expr
 	p.expectPeekToken(token.SEMCOL)
+	return stmnt
+}
+
+func (p *Parser) parseIfStatement() *ast.IfStatement {
+	stmnt := &ast.IfStatement{
+		Token: p.curToken,
+	}
+	p.expectPeekToken(token.LPAREN)
+	stmnt.Condition = p.parseExpression(LOWEST)
+	p.expectPeekToken(token.LBRACE)
+	stmnt.Block = p.parseBlockStatement()
+	p.nextToken()
+	if p.curTokenIs(token.ELSE) {
+		p.nextToken()
+		stmnt.ElseBlock = p.parseBlockStatement()
+	}
 	return stmnt
 }

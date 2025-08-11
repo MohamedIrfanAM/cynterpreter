@@ -51,6 +51,7 @@ func (ds *DeclarationStatement) String() string {
 	return str.String()
 }
 
+// Block statement
 type Block struct {
 	Statements []Statement
 }
@@ -65,6 +66,7 @@ func (blk Block) String() string {
 	return str.String()
 }
 
+// Return statement
 type ReturnStatement struct {
 	Token      token.Token
 	Expression Expression
@@ -78,4 +80,30 @@ func (rs *ReturnStatement) statementNode() {}
 
 func (rs *ReturnStatement) String() string {
 	return "return " + rs.Expression.String()
+}
+
+// If statement
+type IfStatement struct {
+	Token     token.Token
+	Condition Expression
+	Block     *Block
+	ElseBlock *Block
+}
+
+func (ifs *IfStatement) TokenLexeme() string {
+	return ifs.Token.Lexeme
+}
+
+func (ifs *IfStatement) statementNode() {}
+
+func (ifs *IfStatement) String() string {
+	var str strings.Builder
+	str.WriteString("if (")
+	str.WriteString(ifs.Condition.String() + ")")
+	str.WriteString(ifs.Block.String())
+	if ifs.ElseBlock != nil {
+		str.WriteString("else ")
+		str.WriteString(ifs.ElseBlock.String())
+	}
+	return str.String()
 }

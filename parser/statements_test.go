@@ -346,3 +346,71 @@ func TestReturnStatements(t *testing.T) {
 		}
 	}
 }
+
+func TestIfStatement(t *testing.T) {
+	input := `
+	if(count > 0 && condition == true){
+		int x = a;
+		int y = x;
+		int g;
+	}
+	else{
+		int y = x;
+		int g;
+	}
+	`
+
+	p := New(input)
+	program := p.ParseProgram()
+
+	if len(p.Errors()) != 0 {
+		for _, err := range p.Errors() {
+			t.Errorf("Parser Error: %s\n", err.Error())
+		}
+		t.Fatal("Exiting now!")
+	}
+
+	if len(program.Statements) != 1 {
+		t.Fatalf("Number of statements not valid, expected 1, got %d", len(program.Statements))
+	}
+
+	stmnt, ok := program.Statements[0].(*ast.IfStatement)
+	if !ok {
+		t.Fatalf("Statement is not of type ast.IfStatement, got %T", program.Statements[0])
+	}
+
+	expectedCondition := "((count > 0) && (condition == true))"
+	if stmnt.Condition.String() != expectedCondition {
+		t.Errorf("If condition not correct, expected %s, got %s", expectedCondition, stmnt.Condition.String())
+	}
+
+	if stmnt.Block == nil {
+		t.Fatal("If block is nil")
+	}
+
+	if len(stmnt.Block.Statements) != 3 {
+		t.Fatalf("Number of statements in if body not correct, expected 3, got %d", len(stmnt.Block.Statements))
+	}
+
+	for i, stmt := range stmnt.Block.Statements {
+		_, ok := stmt.(*ast.DeclarationStatement)
+		if !ok {
+			t.Errorf("Statement %d in if body is not a DeclarationStatement, got %T", i, stmt)
+		}
+	}
+
+	if stmnt.ElseBlock == nil {
+		t.Fatal("ElseBlock should not be nil for this test case")
+	}
+
+	if len(stmnt.ElseBlock.Statements) != 2 {
+		t.Fatalf("Number of statements in else body not correct, expected 2, got %d", len(stmnt.ElseBlock.Statements))
+	}
+
+	for i, stmt := range stmnt.ElseBlock.Statements {
+		_, ok := stmt.(*ast.DeclarationStatement)
+		if !ok {
+			t.Errorf("Statement %d in else body is not a DeclarationStatement, got %T", i, stmt)
+		}
+	}
+}
