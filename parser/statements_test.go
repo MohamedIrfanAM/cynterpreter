@@ -549,3 +549,89 @@ func TestWhileLoopStatement(t *testing.T) {
 		t.Errorf("Statement 2 in while body is not a DeclarationStatement, got %T", stmnt.Block.Statements[2])
 	}
 }
+
+func TestForStatement(t *testing.T) {
+	input := `
+	for(int i = 0; i < 10; i = i + 1){
+		int x = i;
+		i = i + 1;
+		int result = x * 2;
+	}
+	`
+
+	p := New(input)
+	program := p.ParseProgram()
+
+	if len(p.Errors()) != 0 {
+		for _, err := range p.Errors() {
+			t.Errorf("Parser Error: %s\n", err.Error())
+		}
+		t.Fatal("Exiting now!")
+	}
+
+	if len(program.Statements) != 1 {
+		t.Fatalf("Number of statements not valid, expected 1, got %d", len(program.Statements))
+	}
+
+	stmnt, ok := program.Statements[0].(*ast.ForStatement)
+	if !ok {
+		t.Fatalf("Statement is not of type ast.ForStatement, got %T", program.Statements[0])
+	}
+
+	initStmt, ok := stmnt.InitializationStatement.(*ast.DeclarationStatement)
+	if !ok {
+		t.Fatalf("Initialization statement is not of type ast.DeclarationStatement, got %T", stmnt.InitializationStatement)
+	}
+
+	if initStmt.Type != token.INT {
+		t.Errorf("Initialization statement type not correct, expected %s, got %s", token.INT, initStmt.Type)
+	}
+
+	if initStmt.Identifier.String() != "i" {
+		t.Errorf("Initialization statement identifier not correct, expected %s, got %s", "i", initStmt.Identifier.String())
+	}
+
+	if initStmt.Literal.String() != "0" {
+		t.Errorf("Initialization statement literal not correct, expected %s, got %s", "0", initStmt.Literal.String())
+	}
+
+	expectedCondition := "(i < 10)"
+	if stmnt.Condition.String() != expectedCondition {
+		t.Errorf("For condition not correct, expected %s, got %s", expectedCondition, stmnt.Condition.String())
+	}
+
+	if stmnt.Increment == nil {
+		t.Fatal("Increment statement is nil")
+	}
+
+	if stmnt.Increment.Identifier.String() != "i" {
+		t.Errorf("Increment statement identifier not correct, expected %s, got %s", "i", stmnt.Increment.Identifier.String())
+	}
+
+	if stmnt.Increment.Literal.String() != "(i + 1)" {
+		t.Errorf("Increment statement literal not correct, expected %s, got %s", "(i + 1)", stmnt.Increment.Literal.String())
+	}
+
+	if stmnt.Block == nil {
+		t.Fatal("For block is nil")
+	}
+
+	if len(stmnt.Block.Statements) != 3 {
+		t.Fatalf("Number of statements in for body not correct, expected 3, got %d", len(stmnt.Block.Statements))
+	}
+
+	_, ok = stmnt.Block.Statements[0].(*ast.DeclarationStatement)
+	if !ok {
+		t.Errorf("Statement 0 in for body is not a DeclarationStatement, got %T", stmnt.Block.Statements[0])
+	}
+
+	_, ok = stmnt.Block.Statements[1].(*ast.AssignmentStatement)
+	if !ok {
+		t.Errorf("Statement 1 in for body is not an AssignmentStatement, got %T", stmnt.Block.Statements[1])
+	}
+
+	_, ok = stmnt.Block.Statements[2].(*ast.DeclarationStatement)
+	if !ok {
+		t.Errorf("Statement 2 in for body is not a DeclarationStatement, got %T", stmnt.Block.Statements[2])
+	}
+}

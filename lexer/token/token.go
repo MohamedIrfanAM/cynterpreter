@@ -263,3 +263,12 @@ func IsDatatype(tk TokenType) bool {
 	}
 	return false
 }
+
+func IsAssignmentOp(tk TokenType) bool {
+	for _, v := range AssignmentOps {
+		if tk == v {
+			return true
+		}
+	}
+	return false
+}

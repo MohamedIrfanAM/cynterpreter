@@ -14,11 +14,13 @@ func (p *Parser) ParseStatement() ast.Statement {
 	case token.IF:
 		return p.parseIfStatement()
 	case token.IDENTIFIER:
-		return p.parseAssignmentStatement()
+		return p.parseAssignmentStatement(true)
 	case token.RETURN:
 		return p.parseReturnStatement()
 	case token.WHILE:
 		return p.parseWhileStatement()
+	case token.FOR:
+		return p.parseForStatement()
 	default:
 		return p.parseExpressionStatement()
 	}
@@ -60,7 +62,7 @@ func (p *Parser) parseDeclarationStatement() *ast.DeclarationStatement {
 	return stmnt
 }
 
-func (p *Parser) parseAssignmentStatement() *ast.AssignmentStatement {
+func (p *Parser) parseAssignmentStatement(semCol bool) *ast.AssignmentStatement {
 	tkn := p.curToken
 	ident := p.parseIdentifierExpression()
 	var stmnt = &ast.AssignmentStatement{
@@ -71,13 +73,14 @@ func (p *Parser) parseAssignmentStatement() *ast.AssignmentStatement {
 	if p.curTokenIs(token.SEMCOL) {
 		return stmnt
 	} else {
-		if p.curToken.TokenType != token.ASSIGN {
-			p.errors = append(p.errors, fmt.Errorf("expected '=' Sign for assigment statement , Got - %s", p.curToken.TokenType))
+		if !token.IsAssignmentOp(p.curToken.TokenType) {
+			p.errors = append(p.errors, fmt.Errorf("expected assignment op for assigment statement , Got - %s", p.curToken.TokenType))
 		}
 		p.nextToken()
 		stmnt.Literal = p.parseExpression(LOWEST)
-		p.expectPeekToken(token.SEMCOL)
-
+		if semCol {
+			p.expectPeekToken(token.SEMCOL)
+		}
 	}
 	return stmnt
 }
@@ -128,6 +131,31 @@ func (p *Parser) parseWhileStatement() *ast.WhileStatement {
 	stmnt.Condition = p.parseExpression(LOWEST)
 	p.expectPeekToken(token.LBRACE)
 	stmnt.Block = p.parseBlockStatement()
+	return stmnt
+}
+
+func (p *Parser) parseForStatement() *ast.ForStatement {
+	stmnt := &ast.ForStatement{
+		Token: p.curToken,
+	}
+	p.expectPeekToken(token.LPAREN)
 	p.nextToken()
+	if p.curTokenIs(token.IDENTIFIER) {
+		stmnt.InitializationStatement = p.parseAssignmentStatement(true)
+	} else if token.IsDatatype(p.curToken.TokenType) {
+		stmnt.InitializationStatement = p.parseDeclarationStatement()
+	} else if p.curTokenIs(token.SEMCOL) {
+	} else {
+		p.errors = append(p.errors, fmt.Errorf("not valid statement in initializationStatement of for loop, got %s", p.curToken.TokenType))
+		return nil
+	}
+	p.nextToken()
+	stmnt.Condition = p.parseExpression(LOWEST)
+	p.expectPeekToken(token.SEMCOL)
+	p.nextToken()
+	stmnt.Increment = p.parseAssignmentStatement(false)
+	p.expectPeekToken(token.RPAREN)
+	p.expectPeekToken(token.LBRACE)
+	stmnt.Block = p.parseBlockStatement()
 	return stmnt
 }

@@ -197,3 +197,7 @@ var WhiteSpaceSymbols = []byte{
 var Datatypes = []TokenType{
 	INT, BOOL, STRING, FLOAT, CHAR, VOID, DOUBLE,
 }
+
+var AssignmentOps = []TokenType{
+	ASSIGN, MINUSEQ, PLUSEQ, ASTEREQ, SLASHEQ, PERCENTEQ, PIPEEQ, XOREQ, LSHIFTEQ, RSHIFTEQ, AMPEQ,
+}

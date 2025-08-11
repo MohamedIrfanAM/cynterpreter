@@ -34,7 +34,8 @@ func (ds *DeclarationStatement) TokenLexeme() string {
 	return ds.Token.Lexeme
 }
 
-func (ds *DeclarationStatement) statementNode() {}
+func (ds *DeclarationStatement) statementNode()           {}
+func (ds *DeclarationStatement) initializationStatement() {}
 
 func (ds *DeclarationStatement) String() string {
 	var str strings.Builder
@@ -119,7 +120,8 @@ func (as *AssignmentStatement) TokenLexeme() string {
 	return as.Token.Lexeme
 }
 
-func (as *AssignmentStatement) statementNode() {}
+func (as *AssignmentStatement) statementNode()           {}
+func (as *AssignmentStatement) initializationStatement() {}
 
 func (as *AssignmentStatement) String() string {
 	var str strings.Builder
@@ -149,5 +151,34 @@ func (wl *WhileStatement) String() string {
 	str.WriteString("while (")
 	str.WriteString(wl.Condition.String() + ")")
 	str.WriteString(wl.Block.String())
+	return str.String()
+}
+
+// For loop
+type InitializationStatement interface {
+	Statement
+	initializationStatement()
+}
+type ForStatement struct {
+	Token token.Token
+	InitializationStatement
+	Condition Expression
+	Increment *AssignmentStatement
+	Block     *Block
+}
+
+func (fs *ForStatement) TokenLexeme() string {
+	return fs.Token.Lexeme
+}
+
+func (fs *ForStatement) statementNode() {}
+
+func (fs *ForStatement) String() string {
+	var str strings.Builder
+	str.WriteString("for (")
+	str.WriteString(fs.InitializationStatement.String() + "; ")
+	str.WriteString(fs.Condition.String() + ";")
+	str.WriteString(fs.Increment.String() + ")")
+	str.WriteString(fs.Block.String())
 	return str.String()
 }
