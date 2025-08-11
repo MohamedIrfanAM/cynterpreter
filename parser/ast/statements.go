@@ -107,3 +107,26 @@ func (ifs *IfStatement) String() string {
 	}
 	return str.String()
 }
+
+// Assignment Statement
+type AssignmentStatement struct {
+	Token      token.Token
+	Identifier *IdentifierExpression
+	Literal    Expression
+}
+
+func (as *AssignmentStatement) TokenLexeme() string {
+	return as.Token.Lexeme
+}
+
+func (as *AssignmentStatement) statementNode() {}
+
+func (as *AssignmentStatement) String() string {
+	var str strings.Builder
+
+	str.WriteString(as.Identifier.Value)
+	if as.Literal != nil {
+		str.WriteString(" = " + as.Literal.String())
+	}
+	return str.String()
+}

@@ -206,6 +206,81 @@ func TestDeclarationStatements(t *testing.T) {
 	}
 }
 
+func TestAssignmentStatements(t *testing.T) {
+	input := `
+	x = 10;
+	l = 'a';
+	pi = 3.14;
+	flag = true;
+	name = "hello";
+	zero = 0;
+	newline = '\n';
+	negative = -2.5;
+	falseBool = false;
+	sum = 10 + 5;
+	diff = a - b;
+	product = 3.14 * 2;
+	complex = (x + y) * z;
+	comparison = a > b;
+	funcCall = add(5, 10);
+	nested = calculate(x + y, z);
+	x;
+	y;
+	`
+	expected := []struct {
+		identifier string
+		literal    string
+	}{
+		{"x", "10"},
+		{"l", "'a'"},
+		{"pi", "3.14"},
+		{"flag", "true"},
+		{"name", "\"hello\""},
+		{"zero", "0"},
+		{"newline", "'\\n'"},
+		{"negative", "(-2.5)"},
+		{"falseBool", "false"},
+		{"sum", "(10 + 5)"},
+		{"diff", "(a - b)"},
+		{"product", "(3.14 * 2)"},
+		{"complex", "((x + y) * z)"},
+		{"comparison", "(a > b)"},
+		{"funcCall", "add(5, 10)"},
+		{"nested", "calculate((x + y), z)"},
+		{"x", ""},
+		{"y", ""},
+	}
+
+	p := New(input)
+	statements := p.ParseProgram()
+
+	if len(p.Errors()) != 0 {
+		for _, err := range p.Errors() {
+			t.Errorf("Parser Error: %s\n", err.Error())
+		}
+		t.Fatal("Exiting now!")
+	}
+
+	if len(statements.Statements) != len(expected) {
+		t.Fatalf("Number of statements not valid, expected %d, got %d", len(expected), len(statements.Statements))
+	}
+
+	for i, statement := range statements.Statements {
+		stmnt, ok := statement.(*ast.AssignmentStatement)
+		if !ok {
+			t.Fatalf("[%d] - Not valid statement, expected ast.AssignmentStatement got %T", i, statement)
+		}
+
+		if stmnt.Identifier.String() != expected[i].identifier {
+			t.Errorf("[%d] - Assignment Identifier name not correct, expected %s, got %s", i, expected[i].identifier, stmnt.Identifier.String())
+		}
+
+		if stmnt.Literal != nil && stmnt.Literal.String() != expected[i].literal {
+			t.Errorf("[%d] - Assignment Value not correct, expected %s, got %s", i, expected[i].literal, stmnt.Literal.String())
+		}
+	}
+}
+
 func TestFunctionDeclarationStatemenet(t *testing.T) {
 	input := `
 	int testFunc(int a, char b, float c, string d, bool e){

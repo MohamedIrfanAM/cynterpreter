@@ -13,6 +13,8 @@ func (p *Parser) ParseStatement() ast.Statement {
 		return p.parseDeclarationStatement()
 	case token.IF:
 		return p.parseIfStatement()
+	case token.IDENTIFIER:
+		return p.parseAssignmentStatement()
 	case token.RETURN:
 		return p.parseReturnStatement()
 	default:
@@ -47,6 +49,28 @@ func (p *Parser) parseDeclarationStatement() *ast.DeclarationStatement {
 	} else {
 		if p.curToken.TokenType != token.ASSIGN {
 			p.errors = append(p.errors, fmt.Errorf("expected '=' Sign for assigment in declaration, Got - %s", p.curToken.TokenType))
+		}
+		p.nextToken()
+		stmnt.Literal = p.parseExpression(LOWEST)
+		p.expectPeekToken(token.SEMCOL)
+
+	}
+	return stmnt
+}
+
+func (p *Parser) parseAssignmentStatement() *ast.AssignmentStatement {
+	tkn := p.curToken
+	ident := p.parseIdentifierExpression()
+	var stmnt = &ast.AssignmentStatement{
+		Token:      tkn,
+		Identifier: ident.(*ast.IdentifierExpression),
+	}
+	p.nextToken()
+	if p.curTokenIs(token.SEMCOL) {
+		return stmnt
+	} else {
+		if p.curToken.TokenType != token.ASSIGN {
+			p.errors = append(p.errors, fmt.Errorf("expected '=' Sign for assigment statement , Got - %s", p.curToken.TokenType))
 		}
 		p.nextToken()
 		stmnt.Literal = p.parseExpression(LOWEST)
