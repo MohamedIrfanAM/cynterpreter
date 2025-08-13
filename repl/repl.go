@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 
+	"github.com/mohamedirfanam/cynterpreter/eval"
 	"github.com/mohamedirfanam/cynterpreter/parser"
 )
 
@@ -26,7 +27,9 @@ func REPL(in io.Reader, out io.Writer) {
 			continue
 		}
 
-		fmt.Println(program.Statements[0])
+		result := eval.Eval(program.Statements[0])
+
+		fmt.Println(result.String())
 
 		fmt.Fprint(out, ">> ")
 	}
