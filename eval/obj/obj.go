@@ -14,6 +14,12 @@ const (
 	FLOAT_OBJ   ObjType = "FLOAT_OBJ"
 )
 
+var (
+	TRUE  = &BooleanObject{Value: true}
+	FALSE = &BooleanObject{Value: false}
+	NULL  = &NullObject{}
+)
+
 type Object interface {
 	Type() ObjType
 	String() string
@@ -77,8 +83,8 @@ func (b *BooleanObject) Type() ObjType {
 	return BOOLEAN_OBJ
 }
 
-func (b *BooleanObject) String() ObjType {
-	return ObjType(fmt.Sprintf("%t", b.Value))
+func (b *BooleanObject) String() string {
+	return fmt.Sprintf("%t", b.Value)
 }
 
 // Char Object
