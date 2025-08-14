@@ -193,6 +193,7 @@ func TestInfixOps(t *testing.T) {
 		input    string
 		expected interface{}
 	}{
+		// Addition tests
 		{"1 + 1;", 2},
 		{"2 + 3;", 5},
 		{"-1 + 1;", 0},
@@ -203,6 +204,8 @@ func TestInfixOps(t *testing.T) {
 		{"0.0 + 0.0;", 0.0},
 		{`"hello" + " world";`, "hello world"},
 		{`"a" + "b";`, "ab"},
+
+		// Subtraction tests
 		{"1 - 1;", 0},
 		{"5 - 3;", 2},
 		{"0 - 1;", -1},
@@ -213,6 +216,54 @@ func TestInfixOps(t *testing.T) {
 		{"0.0 - 0.0;", 0.0},
 		{"-5 - 3;", -8},
 		{"10 - (-5);", 15},
+
+		// Multiplication tests
+		{"2 * 3;", 6},
+		{"0 * 5;", 0},
+		{"1 * 1;", 1},
+		{"-2 * 3;", -6},
+		{"2 * (-3);", -6},
+		{"-2 * (-3);", 6},
+		{"2.5 * 4;", 10.0},
+		{"3 * 2.5;", 7.5},
+		{"2.5 * 2.5;", 6.25},
+		{"0.0 * 100;", 0.0},
+
+		// Division tests
+		{"6 / 2;", 3},
+		{"10 / 5;", 2},
+		{"1 / 1;", 1},
+		{"-6 / 2;", -3},
+		{"6 / (-2);", -3},
+		{"-6 / (-2);", 3},
+		{"7.5 / 2.5;", 3.0},
+		{"10 / 2.5;", 4.0},
+		{"5.0 / 2;", 2.5},
+		{"0 / 5;", 0},
+		{"0.0 / 10;", 0.0},
+
+		{"2 + 3 * 4;", 14},          // 2 + (3 * 4) = 2 + 12 = 14
+		{"10 - 2 * 3;", 4},          // 10 - (2 * 3) = 10 - 6 = 4
+		{"20 / 4 + 3;", 8},          // (20 / 4) + 3 = 5 + 3 = 8
+		{"15 / 3 - 2;", 3},          // (15 / 3) - 2 = 5 - 2 = 3
+		{"2 * 3 + 4 * 5;", 26},      // (2 * 3) + (4 * 5) = 6 + 20 = 26
+		{"10 / 2 - 8 / 4;", 3},      // (10 / 2) - (8 / 4) = 5 - 2 = 3
+		{"(2 + 3) * 4;", 20},        // (2 + 3) * 4 = 5 * 4 = 20
+		{"2 * (3 + 4);", 14},        // 2 * (3 + 4) = 2 * 7 = 14
+		{"(10 - 2) / 4;", 2},        // (10 - 2) / 4 = 8 / 4 = 2
+		{"10 / (2 + 3);", 2},        // 10 / (2 + 3) = 10 / 5 = 2
+		{"(5 + 3) * (2 - 1);", 8},   // (5 + 3) * (2 - 1) = 8 * 1 = 8
+		{"(10 / 2) + (6 * 3);", 23}, // (10 / 2) + (6 * 3) = 5 + 18 = 23
+		{"2 + 3 * 4 - 5;", 9},       // 2 + (3 * 4) - 5 = 2 + 12 - 5 = 9
+		{"20 / 4 / 5;", 1},          // (20 / 4) / 5 = 5 / 5 = 1
+		{"2 * 3 * 4;", 24},          // (2 * 3) * 4 = 6 * 4 = 24
+		{"100 - 20 - 30;", 50},      // (100 - 20) - 30 = 80 - 30 = 50
+		{"2.5 * 3.5 + 1.5;", 10.25}, // (2.5 * 3.5) + 1.5 = 8.75 + 1.5 = 10.25
+		{"10.0 / 2.0 - 1.5;", 3.5},  // (10.0 / 2.0) - 1.5 = 5.0 - 1.5 = 3.5
+		{"(1.5 + 2.5) * 2.0;", 8.0}, // (1.5 + 2.5) * 2.0 = 4.0 * 2.0 = 8.0
+		{"5 * 2.5 + 1;", 13.5},      // (5 * 2.5) + 1 = 12.5 + 1 = 13.5
+		{"10 / 2.5 - 2;", 2.0},      // (10 / 2.5) - 2 = 4.0 - 2 = 2.0
+		{"(3 + 1.5) * 2;", 9.0},     // (3 + 1.5) * 2 = 4.5 * 2 = 9.0
 	}
 
 	for i, tt := range tests {
@@ -220,12 +271,12 @@ func TestInfixOps(t *testing.T) {
 		program := p.ParseProgram()
 
 		if len(program.Statements) != 1 {
-			t.Fatalf("Expected 1 statement, got %d", len(program.Statements))
+			t.Fatalf("Test [%d]: Expected 1 statement, got %d", i, len(program.Statements))
 		}
 
 		stmnt, ok := program.Statements[0].(*ast.ExpressionStatement)
 		if !ok {
-			t.Fatalf("[%d] - Not valid statement, expected *ast.ExpressionStatement got %T", i, stmnt)
+			t.Fatalf("Test [%d]: Not valid statement, expected *ast.ExpressionStatement got %T", i, stmnt)
 		}
 
 		object := Eval(stmnt)
@@ -237,6 +288,8 @@ func TestInfixOps(t *testing.T) {
 			testFloatObject(t, object, val)
 		case string:
 			testStringObject(t, object, val)
+		default:
+			t.Fatalf("Test [%d]: Unsupported expected type %T", i, val)
 		}
 	}
 }

@@ -68,6 +68,10 @@ func evalInfixExpression(expr *ast.InfixExpression) obj.Object {
 		return evalInfixPlusOp(leftVal, rightVal)
 	case token.MINUS:
 		return evalInfixMinusOp(leftVal, rightVal)
+	case token.ASTER:
+		return evalInfixMultOp(leftVal, rightVal)
+	case token.SLASH:
+		return evalInfixDevideOp(leftVal, rightVal)
 	default:
 		return obj.NewError(fmt.Errorf("operator error: Unsupported infix operator '%s'", expr.Token.TokenType))
 	}
@@ -103,6 +107,35 @@ func evalInfixMinusOp(leftVal obj.Object, rightVal obj.Object) obj.Object {
 	}
 
 	return obj.NewError(fmt.Errorf("type error: Invalid operand types for subtraction operator, expected number-number but got %s - %s", leftVal.Type(), rightVal.Type()))
+}
+
+func evalInfixMultOp(leftVal obj.Object, rightVal obj.Object) obj.Object {
+	lNum, lIsNum := getNumericValue(leftVal)
+	rNum, rIsNum := getNumericValue(rightVal)
+	if lIsNum && rIsNum {
+		if isFloat(leftVal) || isFloat(rightVal) {
+			return &obj.FloatObject{Value: lNum * rNum}
+		}
+		return &obj.IntegerObject{Value: int64(lNum) * int64(rNum)}
+	}
+
+	return obj.NewError(fmt.Errorf("type error: Invalid operand types for product operator, expected number*number but got %s * %s", leftVal.Type(), rightVal.Type()))
+}
+
+func evalInfixDevideOp(leftVal obj.Object, rightVal obj.Object) obj.Object {
+	lNum, lIsNum := getNumericValue(leftVal)
+	rNum, rIsNum := getNumericValue(rightVal)
+	if rNum == 0 {
+		return obj.NewError(fmt.Errorf("runtime error: devide by zero "))
+	}
+	if lIsNum && rIsNum {
+		if isFloat(leftVal) || isFloat(rightVal) {
+			return &obj.FloatObject{Value: lNum / rNum}
+		}
+		return &obj.IntegerObject{Value: int64(lNum) / int64(rNum)}
+	}
+
+	return obj.NewError(fmt.Errorf("type error: Invalid operand types for devide operator, expected number/number but got %s / %s", leftVal.Type(), rightVal.Type()))
 }
 
 func getNumericValue(val obj.Object) (float64, bool) {
