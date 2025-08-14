@@ -72,6 +72,8 @@ func evalInfixExpression(expr *ast.InfixExpression) obj.Object {
 		return evalInfixMultOp(leftVal, rightVal)
 	case token.SLASH:
 		return evalInfixDevideOp(leftVal, rightVal)
+	case token.PERCENT:
+		return evalInfixModOp(leftVal, rightVal)
 	case token.GT:
 		return evalInfixGTOp(leftVal, rightVal)
 	case token.LT:
@@ -152,6 +154,20 @@ func evalInfixDevideOp(leftVal obj.Object, rightVal obj.Object) obj.Object {
 	}
 
 	return obj.NewError(fmt.Errorf("type error: Invalid operand types for devide operator, expected number/number but got %s / %s", leftVal.Type(), rightVal.Type()))
+}
+
+func evalInfixModOp(leftVal obj.Object, rightVal obj.Object) obj.Object {
+	rVal, ok1 := rightVal.(*obj.IntegerObject)
+	lVal, ok2 := leftVal.(*obj.IntegerObject)
+
+	if !ok1 || !ok2 {
+		return obj.NewError(fmt.Errorf("type error: Invalid operand types for devide operator, expected number %% number but got %s %% %s", leftVal.Type(), rightVal.Type()))
+	}
+	if rVal.Value == 0 {
+		return obj.NewError(fmt.Errorf("runtime error: devide by zero "))
+	}
+	return &obj.IntegerObject{Value: int64(lVal.Value) % int64(rVal.Value)}
+
 }
 
 func evalInfixEQOp(leftVal obj.Object, rightVal obj.Object) obj.Object {

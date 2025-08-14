@@ -221,6 +221,15 @@ func TestInfixOps(t *testing.T) {
 		{"7.5 / 2.5;", 3.0},
 		{"10 / 2.5;", 4.0},
 
+		// Modulo tests
+		{"10 % 3;", 1},
+		{"15 % 5;", 0},
+		{"7 % 2;", 1},
+		{"0 % 5;", 0},
+		{"-10 % 3;", -1},
+		{"10 % -3;", 1},
+		{"-10 % -3;", -1},
+
 		// Comparison tests - Greater Than
 		{"5 > 3;", true},
 		{"3 > 5;", false},
@@ -302,7 +311,6 @@ func TestInfixOps(t *testing.T) {
 		{`"hello" && true;`, true},
 		{`"" && true;`, false},
 		{"'a' && true;", true},
-		// null char test would be {"'\\0' && true;", false},
 
 		// Logical OR with truthy/falsy values
 		{"0 || false;", false},
@@ -313,7 +321,6 @@ func TestInfixOps(t *testing.T) {
 		{`"" || false;`, false},
 		{`"test" || false;`, true},
 		{"'z' || false;", true},
-		// null char test would be {"'\\0' || false;", false},
 
 		// Mixed truthy/falsy combinations
 		{"5 && 3;", true},
