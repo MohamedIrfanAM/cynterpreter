@@ -1,6 +1,8 @@
 package obj
 
-import "fmt"
+import (
+	"fmt"
+)
 
 type ObjType string
 
@@ -38,7 +40,7 @@ func (n *NullObject) String() string {
 
 // Error Object
 type ErrorObject struct {
-	Value string
+	Error error
 }
 
 func (e *ErrorObject) Type() ObjType {
@@ -46,7 +48,13 @@ func (e *ErrorObject) Type() ObjType {
 }
 
 func (e *ErrorObject) String() string {
-	return fmt.Sprintf("Error: %s", e.Value)
+	return e.Error.Error()
+}
+
+func NewError(err error) *ErrorObject {
+	return &ErrorObject{
+		Error: err,
+	}
 }
 
 // Integer Object

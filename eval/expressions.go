@@ -1,6 +1,8 @@
 package eval
 
 import (
+	"fmt"
+
 	"github.com/mohamedirfanam/cynterpreter/eval/obj"
 	"github.com/mohamedirfanam/cynterpreter/lexer/token"
 	"github.com/mohamedirfanam/cynterpreter/parser/ast"
@@ -14,7 +16,7 @@ func evalPrefixExpression(expr *ast.PrefixExpression) obj.Object {
 	case token.NOT:
 		return evalPrefixNotOp(val)
 	default:
-		return &obj.ErrorObject{Value: "Not a valid prefix operator"}
+		return obj.NewError(fmt.Errorf("operator error: Not a valid operator, got %s", expr.Token.TokenType))
 	}
 }
 
@@ -25,7 +27,7 @@ func evalPrefixMinusOp(val obj.Object) obj.Object {
 	case *obj.FloatObject:
 		return &obj.FloatObject{Value: -1 * val.Value}
 	default:
-		return &obj.ErrorObject{Value: "Not a valid type, for the operator -"}
+		return obj.NewError(fmt.Errorf("type error: Invalid operand type for unary minus operator, expected number but got %s", val.Type()))
 	}
 }
 
@@ -54,7 +56,7 @@ func evalPrefixNotOp(val obj.Object) obj.Object {
 				return obj.FALSE
 			}
 		}
-		return &obj.ErrorObject{Value: "Not a valid type, for the operator !"}
+		return obj.NewError(fmt.Errorf("type error: Invalid operand type for logical NOT operator, expected boolean or number but got %s", val.Type()))
 	}
 }
 
@@ -67,7 +69,7 @@ func evalInfixExpression(expr *ast.InfixExpression) obj.Object {
 	case token.MINUS:
 		return evalInfixMinusOp(leftVal, rightVal)
 	default:
-		return &obj.ErrorObject{Value: "Not a valid infix operator"}
+		return obj.NewError(fmt.Errorf("operator error: Unsupported infix operator '%s'", expr.Token.TokenType))
 	}
 }
 
@@ -87,7 +89,7 @@ func evalInfixPlusOp(leftVal obj.Object, rightVal obj.Object) obj.Object {
 		return &obj.IntegerObject{Value: int64(lNum) + int64(rNum)}
 	}
 
-	return &obj.ErrorObject{Value: "Invalid types for the operator + "}
+	return obj.NewError(fmt.Errorf("type error: Invalid operand types for addition operator, expected number+number or string+string but got %s + %s", leftVal.Type(), rightVal.Type()))
 }
 
 func evalInfixMinusOp(leftVal obj.Object, rightVal obj.Object) obj.Object {
@@ -100,7 +102,7 @@ func evalInfixMinusOp(leftVal obj.Object, rightVal obj.Object) obj.Object {
 		return &obj.IntegerObject{Value: int64(lNum) - int64(rNum)}
 	}
 
-	return &obj.ErrorObject{Value: "Invalid types for the operator - "}
+	return obj.NewError(fmt.Errorf("type error: Invalid operand types for subtraction operator, expected number-number but got %s - %s", leftVal.Type(), rightVal.Type()))
 }
 
 func getNumericValue(val obj.Object) (float64, bool) {

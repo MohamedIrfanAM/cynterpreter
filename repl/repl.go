@@ -24,6 +24,7 @@ func REPL(in io.Reader, out io.Writer) {
 			for _, err := range p.Errors() {
 				fmt.Fprintf(out, "Parser Error: %s\n", err.Error())
 			}
+			fmt.Fprint(out, ">> ")
 			continue
 		}
 

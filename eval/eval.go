@@ -38,6 +38,9 @@ func evalProgram(statements []ast.Statement) obj.Object {
 	var result obj.Object
 	for _, stmnt := range statements {
 		result = Eval(stmnt)
+		if result.Type() == obj.ERROR_OBJ {
+			return result
+		}
 	}
 	return result
 }
