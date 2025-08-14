@@ -2,6 +2,7 @@ package eval
 
 import (
 	"github.com/mohamedirfanam/cynterpreter/eval/obj"
+	"github.com/mohamedirfanam/cynterpreter/lexer/token"
 	"github.com/mohamedirfanam/cynterpreter/parser/ast"
 )
 
@@ -42,10 +43,58 @@ func evalProgram(statements []ast.Statement) obj.Object {
 	return result
 }
 
-func evalInfixExpression(expr *ast.InfixExpression) obj.Object {
-	return nil
+func evalPrefixExpression(expr *ast.PrefixExpression) obj.Object {
+	val := Eval(expr.Exp)
+	switch expr.Token.TokenType {
+	case token.MINUS:
+		return evalPrefixMinusOp(val)
+	case token.NOT:
+		return evalPrefixNotOp(val)
+	default:
+		return &obj.ErrorObject{Value: "Not a valid prefix operator"}
+	}
 }
 
-func evalPrefixExpression(expr *ast.PrefixExpression) obj.Object {
+func evalPrefixMinusOp(val obj.Object) obj.Object {
+	switch val := val.(type) {
+	case *obj.IntegerObject:
+		return &obj.IntegerObject{Value: -1 * val.Value}
+	case *obj.FloatObject:
+		return &obj.FloatObject{Value: -1 * val.Value}
+	default:
+		return &obj.ErrorObject{Value: "Not a valid type, for the operator -"}
+	}
+}
+
+func evalPrefixNotOp(val obj.Object) obj.Object {
+	switch val {
+	case obj.TRUE:
+		return obj.FALSE
+	case obj.FALSE:
+		return obj.TRUE
+	case obj.NULL:
+		return obj.FALSE
+	default:
+		intVal, ok := val.(*obj.IntegerObject)
+		if ok {
+			if intVal.Value == 0 {
+				return obj.TRUE
+			} else {
+				return obj.FALSE
+			}
+		}
+		floatVal, ok := val.(*obj.FloatObject)
+		if ok {
+			if floatVal.Value == 0.0 {
+				return obj.TRUE
+			} else {
+				return obj.FALSE
+			}
+		}
+		return &obj.ErrorObject{Value: "Not a valid type, for the operator !"}
+	}
+}
+
+func evalInfixExpression(expr *ast.InfixExpression) obj.Object {
 	return nil
 }

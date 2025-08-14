@@ -121,3 +121,69 @@ func testStringObject(t *testing.T, object obj.Object, value string) {
 		t.Errorf("Value Mismatch, expected %s, got %s", value, stringObject.Value)
 	}
 }
+
+func TestPrefixNot(t *testing.T) {
+	input := `
+	!121;
+	!true;
+	!false;
+	!!true;
+	!!false;
+	!0;
+	!1;
+	!0.0;
+	!1.5;
+	!(-2.3);
+	`
+	expected := []bool{false, false, true, true, false, true, false, true, false, false}
+	p := parser.New(input)
+	program := p.ParseProgram()
+
+	for i, statement := range program.Statements {
+		stmnt, ok := statement.(*ast.ExpressionStatement)
+		if !ok {
+			t.Fatalf("[%d] - Not valid statement, expected *ast.ExpressionStatement got %T", i, stmnt)
+		}
+		object := Eval(statement)
+		testBooleanObject(t, object, expected[i])
+	}
+}
+
+func TestPrefixMinus(t *testing.T) {
+	tests := []struct {
+		input    string
+		expected interface{}
+	}{
+		{"-1;", -1},
+		{"-0;", 0},
+		{"-15;", -15},
+		{"-(-5);", 5},
+		{"-1.5;", -1.5},
+		{"-0.0;", 0.0},
+		{"-(-2.3);", 2.3},
+		{"-123.456;", -123.456},
+	}
+
+	for i, tt := range tests {
+		p := parser.New(tt.input)
+		program := p.ParseProgram()
+
+		if len(program.Statements) != 1 {
+			t.Fatalf("Expected 1 statement, got %d", len(program.Statements))
+		}
+
+		stmnt, ok := program.Statements[0].(*ast.ExpressionStatement)
+		if !ok {
+			t.Fatalf("[%d] - Not valid statement, expected *ast.ExpressionStatement got %T", i, stmnt)
+		}
+
+		object := Eval(stmnt)
+
+		switch val := tt.expected.(type) {
+		case int:
+			testIntegerObject(t, object, val)
+		case float64:
+			testFloatObject(t, object, val)
+		}
+	}
+}
