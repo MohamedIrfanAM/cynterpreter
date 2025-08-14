@@ -72,6 +72,14 @@ func evalInfixExpression(expr *ast.InfixExpression) obj.Object {
 		return evalInfixMultOp(leftVal, rightVal)
 	case token.SLASH:
 		return evalInfixDevideOp(leftVal, rightVal)
+	case token.GT:
+		return evalInfixGTOp(leftVal, rightVal)
+	case token.LT:
+		return evalInfixLTOp(leftVal, rightVal)
+	case token.LE:
+		return evalInfixLEOp(leftVal, rightVal)
+	case token.GE:
+		return evalInfixGEOp(leftVal, rightVal)
 	default:
 		return obj.NewError(fmt.Errorf("operator error: Unsupported infix operator '%s'", expr.Token.TokenType))
 	}
@@ -136,6 +144,58 @@ func evalInfixDevideOp(leftVal obj.Object, rightVal obj.Object) obj.Object {
 	}
 
 	return obj.NewError(fmt.Errorf("type error: Invalid operand types for devide operator, expected number/number but got %s / %s", leftVal.Type(), rightVal.Type()))
+}
+
+func evalInfixGTOp(leftVal obj.Object, rightVal obj.Object) obj.Object {
+	lNum, lIsNum := getNumericValue(leftVal)
+	rNum, rIsNum := getNumericValue(rightVal)
+	if lIsNum && rIsNum {
+		if isFloat(leftVal) || isFloat(rightVal) {
+			return &obj.BooleanObject{Value: lNum > rNum}
+		}
+		return &obj.BooleanObject{Value: int64(lNum) > int64(rNum)}
+	}
+
+	return obj.NewError(fmt.Errorf("type error: Invalid operand types for Greater Than operator, expected number>number but got %s > %s", leftVal.Type(), rightVal.Type()))
+}
+
+func evalInfixLTOp(leftVal obj.Object, rightVal obj.Object) obj.Object {
+	lNum, lIsNum := getNumericValue(leftVal)
+	rNum, rIsNum := getNumericValue(rightVal)
+	if lIsNum && rIsNum {
+		if isFloat(leftVal) || isFloat(rightVal) {
+			return &obj.BooleanObject{Value: lNum < rNum}
+		}
+		return &obj.BooleanObject{Value: int64(lNum) < int64(rNum)}
+	}
+
+	return obj.NewError(fmt.Errorf("type error: Invalid operand types for Less Than operator, expected number<number but got %s < %s", leftVal.Type(), rightVal.Type()))
+}
+
+func evalInfixLEOp(leftVal obj.Object, rightVal obj.Object) obj.Object {
+	lNum, lIsNum := getNumericValue(leftVal)
+	rNum, rIsNum := getNumericValue(rightVal)
+	if lIsNum && rIsNum {
+		if isFloat(leftVal) || isFloat(rightVal) {
+			return &obj.BooleanObject{Value: lNum <= rNum}
+		}
+		return &obj.BooleanObject{Value: int64(lNum) <= int64(rNum)}
+	}
+
+	return obj.NewError(fmt.Errorf("type error: Invalid operand types for Less Than or Equal operator, expected number<=number but got %s <= %s", leftVal.Type(), rightVal.Type()))
+}
+
+func evalInfixGEOp(leftVal obj.Object, rightVal obj.Object) obj.Object {
+	lNum, lIsNum := getNumericValue(leftVal)
+	rNum, rIsNum := getNumericValue(rightVal)
+	if lIsNum && rIsNum {
+		if isFloat(leftVal) || isFloat(rightVal) {
+			return &obj.BooleanObject{Value: lNum >= rNum}
+		}
+		return &obj.BooleanObject{Value: int64(lNum) >= int64(rNum)}
+	}
+
+	return obj.NewError(fmt.Errorf("type error: Invalid operand types for Greater Than or Equal operator, expected number>=number but got %s >= %s", leftVal.Type(), rightVal.Type()))
 }
 
 func getNumericValue(val obj.Object) (float64, bool) {

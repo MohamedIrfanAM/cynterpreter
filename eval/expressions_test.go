@@ -242,6 +242,54 @@ func TestInfixOps(t *testing.T) {
 		{"0 / 5;", 0},
 		{"0.0 / 10;", 0.0},
 
+		// Comparison tests - Greater Than
+		{"5 > 3;", true},
+		{"3 > 5;", false},
+		{"5 > 5;", false},
+		{"0 > -1;", true},
+		{"-1 > 0;", false},
+		{"3.5 > 2.1;", true},
+		{"2.1 > 3.5;", false},
+		{"5 > 2.5;", true},
+		{"2.5 > 5;", false},
+		{"3.0 > 3.0;", false},
+
+		// Comparison tests - Less Than
+		{"3 < 5;", true},
+		{"5 < 3;", false},
+		{"5 < 5;", false},
+		{"-1 < 0;", true},
+		{"0 < -1;", false},
+		{"2.1 < 3.5;", true},
+		{"3.5 < 2.1;", false},
+		{"2.5 < 5;", true},
+		{"5 < 2.5;", false},
+		{"3.0 < 3.0;", false},
+
+		// Comparison tests - Greater Than or Equal
+		{"5 >= 3;", true},
+		{"3 >= 5;", false},
+		{"5 >= 5;", true},
+		{"0 >= -1;", true},
+		{"-1 >= 0;", false},
+		{"3.5 >= 2.1;", true},
+		{"2.1 >= 3.5;", false},
+		{"5 >= 2.5;", true},
+		{"2.5 >= 5;", false},
+		{"3.0 >= 3.0;", true},
+
+		// Comparison tests - Less Than or Equal
+		{"3 <= 5;", true},
+		{"5 <= 3;", false},
+		{"5 <= 5;", true},
+		{"-1 <= 0;", true},
+		{"0 <= -1;", false},
+		{"2.1 <= 3.5;", true},
+		{"3.5 <= 2.1;", false},
+		{"2.5 <= 5;", true},
+		{"5 <= 2.5;", false},
+		{"3.0 <= 3.0;", true},
+
 		{"2 + 3 * 4;", 14},          // 2 + (3 * 4) = 2 + 12 = 14
 		{"10 - 2 * 3;", 4},          // 10 - (2 * 3) = 10 - 6 = 4
 		{"20 / 4 + 3;", 8},          // (20 / 4) + 3 = 5 + 3 = 8
@@ -286,6 +334,8 @@ func TestInfixOps(t *testing.T) {
 			testIntegerObject(t, object, val)
 		case float64:
 			testFloatObject(t, object, val)
+		case bool:
+			testBooleanObject(t, object, val)
 		case string:
 			testStringObject(t, object, val)
 		default:
