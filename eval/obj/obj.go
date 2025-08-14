@@ -95,6 +95,13 @@ func (b *BooleanObject) String() string {
 	return fmt.Sprintf("%t", b.Value)
 }
 
+func GetBoolean(state bool) Object {
+	if state {
+		return TRUE
+	}
+	return FALSE
+}
+
 // Char Object
 type CharObject struct {
 	Value byte
