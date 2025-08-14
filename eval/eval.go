@@ -101,6 +101,8 @@ func evalInfixExpression(expr *ast.InfixExpression) obj.Object {
 	switch expr.Token.TokenType {
 	case token.PLUS:
 		return evalInfixPlusOp(leftVal, rightVal)
+	case token.MINUS:
+		return evalInfixMinusOp(leftVal, rightVal)
 	default:
 		return &obj.ErrorObject{Value: "Not a valid infix operator"}
 	}
@@ -123,6 +125,19 @@ func evalInfixPlusOp(leftVal obj.Object, rightVal obj.Object) obj.Object {
 	}
 
 	return &obj.ErrorObject{Value: "Invalid types for the operator + "}
+}
+
+func evalInfixMinusOp(leftVal obj.Object, rightVal obj.Object) obj.Object {
+	lNum, lIsNum := getNumericValue(leftVal)
+	rNum, rIsNum := getNumericValue(rightVal)
+	if lIsNum && rIsNum {
+		if isFloat(leftVal) || isFloat(rightVal) {
+			return &obj.FloatObject{Value: lNum - rNum}
+		}
+		return &obj.IntegerObject{Value: int64(lNum) - int64(rNum)}
+	}
+
+	return &obj.ErrorObject{Value: "Invalid types for the operator - "}
 }
 
 func getNumericValue(val obj.Object) (float64, bool) {

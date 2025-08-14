@@ -188,7 +188,7 @@ func TestPrefixMinus(t *testing.T) {
 	}
 }
 
-func TestInfixPlusOp(t *testing.T) {
+func TestInfixOps(t *testing.T) {
 	tests := []struct {
 		input    string
 		expected interface{}
@@ -203,6 +203,16 @@ func TestInfixPlusOp(t *testing.T) {
 		{"0.0 + 0.0;", 0.0},
 		{`"hello" + " world";`, "hello world"},
 		{`"a" + "b";`, "ab"},
+		{"1 - 1;", 0},
+		{"5 - 3;", 2},
+		{"0 - 1;", -1},
+		{"100 - 50;", 50},
+		{"3.5 - 1.5;", 2.0},
+		{"5 - 2.5;", 2.5},
+		{"2.5 - 1;", 1.5},
+		{"0.0 - 0.0;", 0.0},
+		{"-5 - 3;", -8},
+		{"10 - (-5);", 15},
 	}
 
 	for i, tt := range tests {
