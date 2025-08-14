@@ -268,6 +268,61 @@ func TestInfixOps(t *testing.T) {
 		{`"hello" != "world";`, true},
 		{`"hello" != "hello";`, false},
 
+		// Logical AND tests
+		{"true && true;", true},
+		{"true && false;", false},
+		{"false && true;", false},
+		{"false && false;", false},
+		{"(5 > 3) && (2 < 4);", true},
+		{"(5 > 3) && (2 > 4);", false},
+		{"(3 == 3) && (4 != 5);", true},
+
+		// Logical OR tests
+		{"true || true;", true},
+		{"true || false;", true},
+		{"false || true;", true},
+		{"false || false;", false},
+		{"(5 > 3) || (2 > 4);", true},
+		{"(5 < 3) || (2 > 4);", false},
+		{"(3 != 3) || (4 == 5);", false},
+
+		// Combined logical operations
+		{"true && true || false;", true},
+		{"false || true && false;", false},
+		{"(true || false) && (true || false);", true},
+		{"(false && true) || (true && false);", false},
+
+		// Logical AND with truthy/falsy values
+		{"1 && true;", true},
+		{"0 && true;", false},
+		{"5 && 3;", true},
+		{"0 && 0;", false},
+		{"1.5 && true;", true},
+		{"0.0 && true;", false},
+		{`"hello" && true;`, true},
+		{`"" && true;`, false},
+		{"'a' && true;", true},
+		// null char test would be {"'\\0' && true;", false},
+
+		// Logical OR with truthy/falsy values
+		{"0 || false;", false},
+		{"1 || false;", true},
+		{"0 || 5;", true},
+		{"0.0 || false;", false},
+		{"2.5 || false;", true},
+		{`"" || false;`, false},
+		{`"test" || false;`, true},
+		{"'z' || false;", true},
+		// null char test would be {"'\\0' || false;", false},
+
+		// Mixed truthy/falsy combinations
+		{"5 && 3;", true},
+		{"0 || 1;", true},
+		{`"hello" && 42;`, true},
+		{`"" || 0;`, false},
+		{"1.5 && 'c';", true},
+		{"0.0 || false;", false},
+
 		// Complex expressions
 		{"2 + 3 * 4;", 14},
 		{"(2 + 3) * 4;", 20},

@@ -84,6 +84,10 @@ func evalInfixExpression(expr *ast.InfixExpression) obj.Object {
 		return evalInfixEQOp(leftVal, rightVal)
 	case token.NE:
 		return evalInfixNEOp(leftVal, rightVal)
+	case token.AND:
+		return evalInfixANDOp(leftVal, rightVal)
+	case token.OR:
+		return evalInfixOROp(leftVal, rightVal)
 	default:
 		return obj.NewError(fmt.Errorf("operator error: Unsupported infix operator '%s'", expr.Token.TokenType))
 	}
@@ -256,6 +260,14 @@ func evalInfixGEOp(leftVal obj.Object, rightVal obj.Object) obj.Object {
 	return obj.NewError(fmt.Errorf("type error: Invalid operand types for Greater Than or Equal operator, expected number>=number but got %s >= %s", leftVal.Type(), rightVal.Type()))
 }
 
+func evalInfixANDOp(leftVal obj.Object, rightVal obj.Object) obj.Object {
+	return obj.GetBoolean(IsTrue(leftVal) && IsTrue(rightVal))
+}
+
+func evalInfixOROp(leftVal obj.Object, rightVal obj.Object) obj.Object {
+	return obj.GetBoolean(IsTrue(leftVal) || IsTrue(rightVal))
+}
+
 func getNumericValue(val obj.Object) (float64, bool) {
 	switch v := val.(type) {
 	case *obj.IntegerObject:
@@ -270,4 +282,39 @@ func getNumericValue(val obj.Object) (float64, bool) {
 func isFloat(val obj.Object) bool {
 	_, ok := val.(*obj.FloatObject)
 	return ok
+}
+
+func IsTrue(val obj.Object) bool {
+	switch val := val.(type) {
+	case *obj.IntegerObject:
+		if val.Value != 0 {
+			return true
+		} else {
+			return false
+		}
+	case *obj.BooleanObject:
+		return val.Value
+	case *obj.FloatObject:
+		if val.Value != 0.0 {
+			return true
+		} else {
+			return false
+		}
+	case *obj.StringObject:
+		if val.Value != "" {
+			return true
+		} else {
+			return false
+		}
+	case *obj.NullObject:
+		return false
+	case *obj.CharObject:
+		if val.Value != 0 {
+			return true
+		} else {
+			return false
+		}
+	default:
+		return true
+	}
 }

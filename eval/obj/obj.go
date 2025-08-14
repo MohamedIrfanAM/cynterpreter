@@ -95,7 +95,7 @@ func (b *BooleanObject) String() string {
 	return fmt.Sprintf("%t", b.Value)
 }
 
-func GetBoolean(state bool) Object {
+func GetBoolean(state bool) *BooleanObject {
 	if state {
 		return TRUE
 	}
