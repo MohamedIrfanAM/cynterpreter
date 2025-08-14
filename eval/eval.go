@@ -96,5 +96,47 @@ func evalPrefixNotOp(val obj.Object) obj.Object {
 }
 
 func evalInfixExpression(expr *ast.InfixExpression) obj.Object {
-	return nil
+	rightVal := Eval(expr.RightExp)
+	leftVal := Eval(expr.LeftExp)
+	switch expr.Token.TokenType {
+	case token.PLUS:
+		return evalInfixPlusOp(leftVal, rightVal)
+	default:
+		return &obj.ErrorObject{Value: "Not a valid infix operator"}
+	}
+}
+
+func evalInfixPlusOp(leftVal obj.Object, rightVal obj.Object) obj.Object {
+	if leftVal.Type() == obj.STRING_OBJ && rightVal.Type() == obj.STRING_OBJ {
+		lval, _ := leftVal.(*obj.StringObject)
+		rval, _ := rightVal.(*obj.StringObject)
+		return &obj.StringObject{Value: lval.Value + rval.Value}
+	}
+
+	lNum, lIsNum := getNumericValue(leftVal)
+	rNum, rIsNum := getNumericValue(rightVal)
+	if lIsNum && rIsNum {
+		if isFloat(leftVal) || isFloat(rightVal) {
+			return &obj.FloatObject{Value: lNum + rNum}
+		}
+		return &obj.IntegerObject{Value: int64(lNum) + int64(rNum)}
+	}
+
+	return &obj.ErrorObject{Value: "Invalid types for the operator + "}
+}
+
+func getNumericValue(val obj.Object) (float64, bool) {
+	switch v := val.(type) {
+	case *obj.IntegerObject:
+		return float64(v.Value), true
+	case *obj.FloatObject:
+		return v.Value, true
+	default:
+		return 0, false
+	}
+}
+
+func isFloat(val obj.Object) bool {
+	_, ok := val.(*obj.FloatObject)
+	return ok
 }

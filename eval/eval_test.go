@@ -187,3 +187,46 @@ func TestPrefixMinus(t *testing.T) {
 		}
 	}
 }
+
+func TestInfixPlusOp(t *testing.T) {
+	tests := []struct {
+		input    string
+		expected interface{}
+	}{
+		{"1 + 1;", 2},
+		{"2 + 3;", 5},
+		{"-1 + 1;", 0},
+		{"0 + 100;", 100},
+		{"1.5 + 2.5;", 4.0},
+		{"1 + 2.5;", 3.5},
+		{"2.5 + 1;", 3.5},
+		{"0.0 + 0.0;", 0.0},
+		{`"hello" + " world";`, "hello world"},
+		{`"a" + "b";`, "ab"},
+	}
+
+	for i, tt := range tests {
+		p := parser.New(tt.input)
+		program := p.ParseProgram()
+
+		if len(program.Statements) != 1 {
+			t.Fatalf("Expected 1 statement, got %d", len(program.Statements))
+		}
+
+		stmnt, ok := program.Statements[0].(*ast.ExpressionStatement)
+		if !ok {
+			t.Fatalf("[%d] - Not valid statement, expected *ast.ExpressionStatement got %T", i, stmnt)
+		}
+
+		object := Eval(stmnt)
+
+		switch val := tt.expected.(type) {
+		case int:
+			testIntegerObject(t, object, val)
+		case float64:
+			testFloatObject(t, object, val)
+		case string:
+			testStringObject(t, object, val)
+		}
+	}
+}
