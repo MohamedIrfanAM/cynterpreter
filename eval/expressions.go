@@ -80,6 +80,10 @@ func evalInfixExpression(expr *ast.InfixExpression) obj.Object {
 		return evalInfixLEOp(leftVal, rightVal)
 	case token.GE:
 		return evalInfixGEOp(leftVal, rightVal)
+	case token.EQ:
+		return evalInfixEQOp(leftVal, rightVal)
+	case token.NE:
+		return evalInfixNEOp(leftVal, rightVal)
 	default:
 		return obj.NewError(fmt.Errorf("operator error: Unsupported infix operator '%s'", expr.Token.TokenType))
 	}
@@ -144,6 +148,60 @@ func evalInfixDevideOp(leftVal obj.Object, rightVal obj.Object) obj.Object {
 	}
 
 	return obj.NewError(fmt.Errorf("type error: Invalid operand types for devide operator, expected number/number but got %s / %s", leftVal.Type(), rightVal.Type()))
+}
+
+func evalInfixEQOp(leftVal obj.Object, rightVal obj.Object) obj.Object {
+	if leftVal.Type() == obj.STRING_OBJ && rightVal.Type() == obj.STRING_OBJ {
+		lval, _ := leftVal.(*obj.StringObject)
+		rval, _ := rightVal.(*obj.StringObject)
+		return &obj.BooleanObject{Value: lval.Value == rval.Value}
+	} else if leftVal.Type() == obj.CHAR_OBJ && rightVal.Type() == obj.CHAR_OBJ {
+		lval, _ := leftVal.(*obj.CharObject)
+		rval, _ := rightVal.(*obj.CharObject)
+		return &obj.BooleanObject{Value: lval.Value == rval.Value}
+	} else if leftVal.Type() == obj.BOOLEAN_OBJ && rightVal.Type() == obj.BOOLEAN_OBJ {
+		lval, _ := leftVal.(*obj.BooleanObject)
+		rval, _ := rightVal.(*obj.BooleanObject)
+		return &obj.BooleanObject{Value: lval.Value == rval.Value}
+	}
+
+	lNum, lIsNum := getNumericValue(leftVal)
+	rNum, rIsNum := getNumericValue(rightVal)
+	if lIsNum && rIsNum {
+		if isFloat(leftVal) || isFloat(rightVal) {
+			return &obj.BooleanObject{Value: lNum == rNum}
+		}
+		return &obj.BooleanObject{Value: int64(lNum) == int64(rNum)}
+	}
+
+	return obj.NewError(fmt.Errorf("type error: Invalid operand types for equal operator, expected number==number or string==string or char == char but got %s + %s", leftVal.Type(), rightVal.Type()))
+}
+
+func evalInfixNEOp(leftVal obj.Object, rightVal obj.Object) obj.Object {
+	if leftVal.Type() == obj.STRING_OBJ && rightVal.Type() == obj.STRING_OBJ {
+		lval, _ := leftVal.(*obj.StringObject)
+		rval, _ := rightVal.(*obj.StringObject)
+		return &obj.BooleanObject{Value: lval.Value != rval.Value}
+	} else if leftVal.Type() == obj.CHAR_OBJ && rightVal.Type() == obj.CHAR_OBJ {
+		lval, _ := leftVal.(*obj.CharObject)
+		rval, _ := rightVal.(*obj.CharObject)
+		return &obj.BooleanObject{Value: lval.Value != rval.Value}
+	} else if leftVal.Type() == obj.BOOLEAN_OBJ && rightVal.Type() == obj.BOOLEAN_OBJ {
+		lval, _ := leftVal.(*obj.BooleanObject)
+		rval, _ := rightVal.(*obj.BooleanObject)
+		return &obj.BooleanObject{Value: lval.Value != rval.Value}
+	}
+
+	lNum, lIsNum := getNumericValue(leftVal)
+	rNum, rIsNum := getNumericValue(rightVal)
+	if lIsNum && rIsNum {
+		if isFloat(leftVal) || isFloat(rightVal) {
+			return &obj.BooleanObject{Value: lNum != rNum}
+		}
+		return &obj.BooleanObject{Value: int64(lNum) != int64(rNum)}
+	}
+
+	return obj.NewError(fmt.Errorf("type error: Invalid operand types for equal operator, expected number!=number or string==string or char != char but got %s + %s", leftVal.Type(), rightVal.Type()))
 }
 
 func evalInfixGTOp(leftVal obj.Object, rightVal obj.Object) obj.Object {
