@@ -119,8 +119,8 @@ func (p *Parser) parseIfStatement() *ast.IfStatement {
 	stmnt.Condition = p.parseExpression(LOWEST)
 	p.expectPeekToken(token.LBRACE)
 	stmnt.Block = p.parseBlockStatement()
-	p.nextToken()
-	if p.curTokenIs(token.ELSE) {
+	if p.peekTokenIs(token.ELSE) {
+		p.nextToken()
 		p.nextToken()
 		stmnt.ElseBlock = p.parseBlockStatement()
 	}
