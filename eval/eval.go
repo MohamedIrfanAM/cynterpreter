@@ -11,6 +11,8 @@ func Eval(node ast.Node) obj.Object {
 		return evalProgram(node.Statements)
 	case *ast.ExpressionStatement:
 		return Eval(node.Expression)
+	case *ast.IfStatement:
+		return evalIfStatement(node)
 	case *ast.IntegerLiteral:
 		return &obj.IntegerObject{Value: node.Value}
 	case *ast.BoolLiteral:

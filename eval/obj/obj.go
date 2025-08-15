@@ -2,6 +2,7 @@ package obj
 
 import (
 	"fmt"
+	"strings"
 )
 
 type ObjType string
@@ -14,6 +15,8 @@ const (
 	CHAR_OBJ    ObjType = "CHAR_OBJ"
 	STRING_OBJ  ObjType = "STRING_OBJ"
 	FLOAT_OBJ   ObjType = "FLOAT_OBJ"
+
+	RESULTS_OBJ ObjType = "RESULTS_OBJ"
 )
 
 var (
@@ -126,4 +129,24 @@ func (s *StringObject) Type() ObjType {
 
 func (s *StringObject) String() string {
 	return s.Value
+}
+
+// Results Object
+type ResultsObject struct {
+	Results []Object
+}
+
+func (r *ResultsObject) Type() ObjType {
+	return RESULTS_OBJ
+}
+
+func (r *ResultsObject) String() string {
+	var str strings.Builder
+	for i, result := range r.Results {
+		str.WriteString(result.String())
+		if i < len(r.Results)-1 {
+			str.WriteRune('\n')
+		}
+	}
+	return str.String()
 }
