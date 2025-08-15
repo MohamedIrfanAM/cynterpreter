@@ -296,3 +296,62 @@ func TestAssignmentStatement(t *testing.T) {
 		t.Fatalf("Expected type mismatch error, got %T", result)
 	}
 }
+
+func TestVariableUsage(t *testing.T) {
+	tests := []struct {
+		input    string
+		expected interface{}
+	}{
+		// C-style variable declarations and usage
+		{"int x = 5; x;", 5},
+		{"float y = 3.14; y;", 3.14},
+		{"bool flag = true; flag;", true},
+		{"string name = \"John\"; name;", "John"},
+		{"char ch = 'A'; ch;", byte('A')},
+
+		// Variable operations
+		{"int a = 10; int b = 20; a + b;", 30},
+		{"int x = 5; int y = 2; x * y;", 10},
+		{"float pi = 3.14; float radius = 2.0; pi * radius;", 6.28},
+		{"string firstName = \"Hello\"; string lastName = \" World\"; firstName + lastName;", "Hello World"},
+		{"bool isActive = true; bool isValid = false; isActive && isValid;", false},
+		{"int score1 = 85; int score2 = 92; score1 > score2;", false},
+		{"float temp = 25.5; float threshold = 30.0; temp < threshold;", true},
+
+		// Variable reassignment
+		{"int count = 5; count = count + 1; count;", 6},
+		{"int value = 10; value = value * 2; value;", 20},
+		{"string message = \"Hello\"; message = message + \"!\"; message;", "Hello!"},
+
+		// Mixed type operations
+		{"int intVal = 5; float floatVal = 2.5; intVal + floatVal;", 7.5},
+		{"bool result = false; int num = 0; result || num;", false},
+		{"char letter = 'Z'; string word = \"oo\"; letter;", byte('Z')},
+	}
+
+	for i, tt := range tests {
+		env := obj.NewEnv()
+		p := parser.New(tt.input)
+		program := p.ParseProgram()
+
+		var result obj.Object
+		for _, stmt := range program.Statements {
+			result = Eval(stmt, env)
+		}
+
+		switch val := tt.expected.(type) {
+		case int:
+			testIntegerObject(t, result, val)
+		case float64:
+			testFloatObject(t, result, val)
+		case bool:
+			testBooleanObject(t, result, val)
+		case string:
+			testStringObject(t, result, val)
+		case byte:
+			testCharObject(t, result, val)
+		default:
+			t.Fatalf("Test [%d]: Unsupported expected type %T", i, val)
+		}
+	}
+}

@@ -8,6 +8,14 @@ import (
 	"github.com/mohamedirfanam/cynterpreter/parser/ast"
 )
 
+func evalIdentifierExpression(ident *ast.IdentifierExpression, env *obj.Environment) obj.Object {
+	val, ok := env.GetVar(ident.Value)
+	if !ok {
+		return obj.NewError(fmt.Errorf("variable error: variable %s not declared in this scope", ident))
+	}
+	return val
+}
+
 func evalPrefixExpression(expr *ast.PrefixExpression, env *obj.Environment) obj.Object {
 	val := Eval(expr.Exp, env)
 	switch expr.Token.TokenType {
