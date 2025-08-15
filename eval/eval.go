@@ -5,14 +5,14 @@ import (
 	"github.com/mohamedirfanam/cynterpreter/parser/ast"
 )
 
-func Eval(node ast.Node) obj.Object {
+func Eval(node ast.Node, env *obj.Environment) obj.Object {
 	switch node := node.(type) {
 	case *ast.Program:
-		return evalProgram(node.Statements)
+		return evalProgram(node.Statements, env)
 	case *ast.ExpressionStatement:
-		return Eval(node.Expression)
+		return Eval(node.Expression, env)
 	case *ast.IfStatement:
-		return evalIfStatement(node)
+		return evalIfStatement(node, env)
 	case *ast.IntegerLiteral:
 		return &obj.IntegerObject{Value: node.Value}
 	case *ast.BoolLiteral:
@@ -28,18 +28,18 @@ func Eval(node ast.Node) obj.Object {
 	case *ast.FloatLiteral:
 		return &obj.FloatObject{Value: node.Value}
 	case *ast.InfixExpression:
-		return evalInfixExpression(node)
+		return evalInfixExpression(node, env)
 	case *ast.PrefixExpression:
-		return evalPrefixExpression(node)
+		return evalPrefixExpression(node, env)
 
 	}
 	return obj.NULL
 }
 
-func evalProgram(statements []ast.Statement) obj.Object {
+func evalProgram(statements []ast.Statement, env *obj.Environment) obj.Object {
 	var result obj.Object
 	for _, stmnt := range statements {
-		result = Eval(stmnt)
+		result = Eval(stmnt, env)
 		if result.Type() == obj.ERROR_OBJ {
 			return result
 		}

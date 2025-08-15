@@ -17,6 +17,7 @@ func REPL(in io.Reader, out io.Writer) {
 	fmt.Fprint(out, ">> ")
 
 	var input strings.Builder
+	var env = obj.NewEnv()
 	for scanner.Scan() {
 
 		input.WriteString(scanner.Text())
@@ -37,7 +38,7 @@ func REPL(in io.Reader, out io.Writer) {
 			continue
 		}
 
-		result := eval.Eval(program.Statements[0])
+		result := eval.Eval(program.Statements[0], env)
 		if result.Type() != obj.NULL_OBJ {
 			fmt.Println(result.String())
 		}

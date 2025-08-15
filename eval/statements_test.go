@@ -38,7 +38,7 @@ func TestIfStatement(t *testing.T) {
 		{"if(true){999;}", []int{999}},
 		{"if(false){888;}else{777;}", []int{777}},
 	}
-
+	env := obj.NewEnv()
 	for i, tt := range tests {
 		p := parser.New(tt.input)
 		program := p.ParseProgram()
@@ -52,7 +52,7 @@ func TestIfStatement(t *testing.T) {
 			t.Fatalf("[%d] - Not valid statement, expected *ast.IfStatement got %T", i, stmnt)
 		}
 
-		results := Eval(stmnt)
+		results := Eval(stmnt, env)
 
 		if len(tt.expected) == 0 {
 			if results == nil || results.Type() == obj.NULL_OBJ {

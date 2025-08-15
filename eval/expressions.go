@@ -8,8 +8,8 @@ import (
 	"github.com/mohamedirfanam/cynterpreter/parser/ast"
 )
 
-func evalPrefixExpression(expr *ast.PrefixExpression) obj.Object {
-	val := Eval(expr.Exp)
+func evalPrefixExpression(expr *ast.PrefixExpression, env *obj.Environment) obj.Object {
+	val := Eval(expr.Exp, env)
 	switch expr.Token.TokenType {
 	case token.MINUS:
 		return evalPrefixMinusOp(val)
@@ -60,9 +60,9 @@ func evalPrefixNotOp(val obj.Object) obj.Object {
 	}
 }
 
-func evalInfixExpression(expr *ast.InfixExpression) obj.Object {
-	rightVal := Eval(expr.RightExp)
-	leftVal := Eval(expr.LeftExp)
+func evalInfixExpression(expr *ast.InfixExpression, env *obj.Environment) obj.Object {
+	rightVal := Eval(expr.RightExp, env)
+	leftVal := Eval(expr.LeftExp, env)
 	switch expr.Token.TokenType {
 	case token.PLUS:
 		return evalInfixPlusOp(leftVal, rightVal)

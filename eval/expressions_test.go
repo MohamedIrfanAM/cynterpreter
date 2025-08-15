@@ -21,12 +21,13 @@ func TestLiteralExpression(t *testing.T) {
 	p := parser.New(input)
 	program := p.ParseProgram()
 
+	env := obj.NewEnv()
 	for i, statement := range program.Statements {
 		stmnt, ok := statement.(*ast.ExpressionStatement)
 		if !ok {
 			t.Fatalf("[%d] - Not valid statement, expected *ast.ExpressionStatement got %T", i, stmnt)
 		}
-		object := Eval(statement)
+		object := Eval(statement, env)
 		switch val := expected[i].(type) {
 		case int:
 			testIntegerObject(t, object, val)
@@ -139,12 +140,13 @@ func TestPrefixNot(t *testing.T) {
 	p := parser.New(input)
 	program := p.ParseProgram()
 
+	env := obj.NewEnv()
 	for i, statement := range program.Statements {
 		stmnt, ok := statement.(*ast.ExpressionStatement)
 		if !ok {
 			t.Fatalf("[%d] - Not valid statement, expected *ast.ExpressionStatement got %T", i, stmnt)
 		}
-		object := Eval(statement)
+		object := Eval(statement, env)
 		testBooleanObject(t, object, expected[i])
 	}
 }
@@ -164,6 +166,7 @@ func TestPrefixMinus(t *testing.T) {
 		{"-123.456;", -123.456},
 	}
 
+	env := obj.NewEnv()
 	for i, tt := range tests {
 		p := parser.New(tt.input)
 		program := p.ParseProgram()
@@ -177,7 +180,7 @@ func TestPrefixMinus(t *testing.T) {
 			t.Fatalf("[%d] - Not valid statement, expected *ast.ExpressionStatement got %T", i, stmnt)
 		}
 
-		object := Eval(stmnt)
+		object := Eval(stmnt, env)
 
 		switch val := tt.expected.(type) {
 		case int:
@@ -338,7 +341,7 @@ func TestInfixOps(t *testing.T) {
 		{"2.5 * 3.5 + 1.5;", 10.25},
 		{"(3 + 1.5) * 2;", 9.0},
 	}
-
+	env := obj.NewEnv()
 	for i, tt := range tests {
 		p := parser.New(tt.input)
 		program := p.ParseProgram()
@@ -352,7 +355,7 @@ func TestInfixOps(t *testing.T) {
 			t.Fatalf("Test [%d]: Not valid statement, expected *ast.ExpressionStatement got %T", i, stmnt)
 		}
 
-		object := Eval(stmnt)
+		object := Eval(stmnt, env)
 
 		switch val := tt.expected.(type) {
 		case int:

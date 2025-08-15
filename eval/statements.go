@@ -5,21 +5,21 @@ import (
 	"github.com/mohamedirfanam/cynterpreter/parser/ast"
 )
 
-func evalIfStatement(ifs *ast.IfStatement) obj.Object {
-	result := Eval(ifs.Condition)
+func evalIfStatement(ifs *ast.IfStatement, env *obj.Environment) obj.Object {
+	result := Eval(ifs.Condition, env)
 	condition := IsTrue(result)
 	if condition {
-		return evalBlock(ifs.Block)
+		return evalBlock(ifs.Block, env)
 	} else if !condition && ifs.ElseBlock != nil {
-		return evalBlock(ifs.ElseBlock)
+		return evalBlock(ifs.ElseBlock, env)
 	}
 	return obj.NULL
 }
 
-func evalBlock(blk *ast.Block) obj.Object {
+func evalBlock(blk *ast.Block, env *obj.Environment) obj.Object {
 	var results []obj.Object
 	for _, stmnt := range blk.Statements {
-		result := Eval(stmnt)
+		result := Eval(stmnt, env)
 		if result.Type() == obj.ERROR_OBJ {
 			return result
 		}
