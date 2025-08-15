@@ -44,3 +44,19 @@ func evalDeclarationStatement(ls *ast.DeclarationStatement, env *obj.Environment
 	env.SetVar(ls.Identifier.Value, val)
 	return obj.NULL
 }
+
+func evalAssignmentStatement(ls *ast.AssignmentStatement, env *obj.Environment) obj.Object {
+	val := Eval(ls.Literal, env)
+	if val.Type() == obj.ERROR_OBJ {
+		return val
+	}
+	varObj, ok := env.GetVar(ls.Identifier.Value)
+	if !ok {
+		return obj.NewError(fmt.Errorf("variable not declared: variable %s not declared before, for assigment", ls.Identifier))
+	}
+	if varObj.Type() != val.Type() {
+		return obj.NewError(fmt.Errorf("type error: invalid assigment type cannot assign %s to %s", val.Type(), varObj.Type()))
+	}
+	env.SetVar(ls.Identifier.Value, val)
+	return obj.NULL
+}

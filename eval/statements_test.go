@@ -174,3 +174,125 @@ func TestDeclarationStatement(t *testing.T) {
 		t.Fatalf("Expected redeclaration error, got %T", result2)
 	}
 }
+
+func TestAssignmentStatement(t *testing.T) {
+	tests := []struct {
+		declaration string
+		assignment  string
+		identifier  string
+		expectedVal interface{}
+	}{
+		{"int x = 5;", "x = 10;", "x", int64(10)},
+		{"char c = 'a';", "c = 'z';", "c", byte('z')},
+		{"float f = 1.5;", "f = 2.7;", "f", 2.7},
+		{"bool b = false;", "b = true;", "b", true},
+		{"string s = \"old\";", "s = \"new\";", "s", "new"},
+		{"int zero = 100;", "zero = 0;", "zero", int64(0)},
+		{"bool flag = true;", "flag = false;", "flag", false},
+		{"float negative = 1.0;", "negative = -3.14;", "negative", -3.14},
+	}
+
+	for i, tt := range tests {
+		env := obj.NewEnv()
+
+		// First declare the variable
+		declP := parser.New(tt.declaration)
+		declProgram := declP.ParseProgram()
+
+		if len(declProgram.Statements) != 1 {
+			t.Fatalf("[%d] Expected 1 declaration statement, got %d", i, len(declProgram.Statements))
+		}
+
+		declResult := Eval(declProgram.Statements[0], env)
+		if declResult.Type() == obj.ERROR_OBJ {
+			t.Fatalf("[%d] - Declaration error: %s", i, declResult.String())
+		}
+
+		// Then perform the assignment
+		assignP := parser.New(tt.assignment)
+		assignProgram := assignP.ParseProgram()
+
+		if len(assignProgram.Statements) != 1 {
+			t.Fatalf("[%d] Expected 1 assignment statement, got %d", i, len(assignProgram.Statements))
+		}
+
+		stmnt, ok := assignProgram.Statements[0].(*ast.AssignmentStatement)
+		if !ok {
+			t.Fatalf("[%d] - Not valid statement, expected *ast.AssignmentStatement got %T", i, stmnt)
+		}
+
+		result := Eval(stmnt, env)
+		if result.Type() == obj.ERROR_OBJ {
+			t.Fatalf("[%d] - Assignment error: %s", i, result.String())
+		}
+
+		storedObj, exists := env.GetVar(tt.identifier)
+		if !exists {
+			t.Fatalf("[%d] - Variable %s not found in environment", i, tt.identifier)
+		}
+
+		switch expected := tt.expectedVal.(type) {
+		case int64:
+			intObj, ok := storedObj.(*obj.IntegerObject)
+			if !ok {
+				t.Fatalf("[%d] - Expected IntegerObject, got %T", i, storedObj)
+			}
+			if intObj.Value != expected {
+				t.Errorf("[%d] - Expected %d, got %d", i, expected, intObj.Value)
+			}
+		case byte:
+			charObj, ok := storedObj.(*obj.CharObject)
+			if !ok {
+				t.Fatalf("[%d] - Expected CharObject, got %T", i, storedObj)
+			}
+			if charObj.Value != expected {
+				t.Errorf("[%d] - Expected %c, got %c", i, expected, charObj.Value)
+			}
+		case float64:
+			floatObj, ok := storedObj.(*obj.FloatObject)
+			if !ok {
+				t.Fatalf("[%d] - Expected FloatObject, got %T", i, storedObj)
+			}
+			if floatObj.Value != expected {
+				t.Errorf("[%d] - Expected %f, got %f", i, expected, floatObj.Value)
+			}
+		case bool:
+			boolObj, ok := storedObj.(*obj.BooleanObject)
+			if !ok {
+				t.Fatalf("[%d] - Expected BooleanObject, got %T", i, storedObj)
+			}
+			if boolObj.Value != expected {
+				t.Errorf("[%d] - Expected %t, got %t", i, expected, boolObj.Value)
+			}
+		case string:
+			stringObj, ok := storedObj.(*obj.StringObject)
+			if !ok {
+				t.Fatalf("[%d] - Expected StringObject, got %T", i, storedObj)
+			}
+			if stringObj.Value != expected {
+				t.Errorf("[%d] - Expected %s, got %s", i, expected, stringObj.Value)
+			}
+		}
+	}
+
+	env := obj.NewEnv()
+	p := parser.New("x = 10;")
+	program := p.ParseProgram()
+
+	result := Eval(program.Statements[0], env)
+	if result.Type() != obj.ERROR_OBJ {
+		t.Fatalf("Expected error for undeclared variable assignment, got %T", result)
+	}
+
+	env = obj.NewEnv()
+	declP := parser.New("int x = 5;")
+	declProgram := declP.ParseProgram()
+	Eval(declProgram.Statements[0], env)
+
+	assignP := parser.New("x = \"string\";")
+	assignProgram := assignP.ParseProgram()
+	result = Eval(assignProgram.Statements[0], env)
+	if result.Type() != obj.ERROR_OBJ {
+		t.Fatalf("Expected type mismatch error, got %T", result)
+	}
+}
