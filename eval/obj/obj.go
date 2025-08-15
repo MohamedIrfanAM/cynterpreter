@@ -3,6 +3,8 @@ package obj
 import (
 	"fmt"
 	"strings"
+
+	"github.com/mohamedirfanam/cynterpreter/lexer/token"
 )
 
 type ObjType string
@@ -24,6 +26,25 @@ var (
 	FALSE = &BooleanObject{Value: false}
 	NULL  = &NullObject{}
 )
+
+func GetObjectType(tknType token.TokenType) ObjType {
+	switch tknType {
+	case token.INT:
+		return INTEGER_OBJ
+	case token.CHAR:
+		return CHAR_OBJ
+	case token.BOOL:
+		return BOOLEAN_OBJ
+	case token.STRING:
+		return STRING_OBJ
+	case token.FLOAT:
+		return FLOAT_OBJ
+	case token.DOUBLE:
+		return FLOAT_OBJ
+	default:
+		return ERROR_OBJ
+	}
+}
 
 type Object interface {
 	Type() ObjType

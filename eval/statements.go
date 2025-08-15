@@ -1,6 +1,8 @@
 package eval
 
 import (
+	"fmt"
+
 	"github.com/mohamedirfanam/cynterpreter/eval/obj"
 	"github.com/mohamedirfanam/cynterpreter/parser/ast"
 )
@@ -26,4 +28,19 @@ func evalBlock(blk *ast.Block, env *obj.Environment) obj.Object {
 		results = append(results, result)
 	}
 	return &obj.ResultsObject{Results: results}
+}
+
+func evalDeclarationStatement(ls *ast.DeclarationStatement, env *obj.Environment) obj.Object {
+	val := Eval(ls.Literal, env)
+	if val.Type() == obj.ERROR_OBJ {
+		return val
+	}
+	if _, ok := env.GetVar(ls.Identifier.Value); ok {
+		return obj.NewError(fmt.Errorf("variable redeclaration error: variable %s already declared before", ls.Identifier))
+	}
+	if obj.GetObjectType(ls.Type) != val.Type() {
+		return obj.NewError(fmt.Errorf("type error: invalid declaration type cannot assign %s to %s", val.Type(), ls.Type))
+	}
+	env.SetVar(ls.Identifier.Value, val)
+	return obj.NULL
 }
