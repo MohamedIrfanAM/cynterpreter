@@ -48,6 +48,24 @@ func GetObjectType(tknType token.TokenType) ObjType {
 	}
 }
 
+func GetDefaultVal(tknType token.TokenType) Object {
+	t := GetObjectType(tknType)
+	switch t {
+	case INTEGER_OBJ:
+		return &IntegerObject{Value: 0}
+	case BOOLEAN_OBJ:
+		return &BooleanObject{Value: false}
+	case CHAR_OBJ:
+		return &CharObject{Value: 0}
+	case FLOAT_OBJ:
+		return &FloatObject{Value: 0.0}
+	case STRING_OBJ:
+		return &StringObject{Value: ""}
+	default:
+		return NULL
+	}
+}
+
 type Object interface {
 	Type() ObjType
 	String() string

@@ -31,12 +31,16 @@ func evalBlock(blk *ast.Block, env *obj.Environment) obj.Object {
 }
 
 func evalDeclarationStatement(ls *ast.DeclarationStatement, env *obj.Environment) obj.Object {
+	if _, ok := env.GetVar(ls.Identifier.Value); ok {
+		return obj.NewError(fmt.Errorf("variable redeclaration error: variable %s already declared before", ls.Identifier))
+	}
+	if ls.Literal == nil {
+		env.SetVar(ls.Identifier.Value, obj.GetDefaultVal(ls.Type))
+		return obj.NULL
+	}
 	val := Eval(ls.Literal, env)
 	if val.Type() == obj.ERROR_OBJ {
 		return val
-	}
-	if _, ok := env.GetVar(ls.Identifier.Value); ok {
-		return obj.NewError(fmt.Errorf("variable redeclaration error: variable %s already declared before", ls.Identifier))
 	}
 	if fl, ok := ls.Literal.(*ast.FunctionLiteral); ok {
 		returnType := obj.GetObjectType(ls.Type)

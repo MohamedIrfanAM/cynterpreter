@@ -320,6 +320,7 @@ func TestVariableUsage(t *testing.T) {
 
 		// Variable reassignment
 		{"int count = 5; count = count + 1; count;", 6},
+		{"int count; count = 10; count;", 10},
 		{"int value = 10; value = value * 2; value;", 20},
 		{"string message = \"Hello\"; message = message + \"!\"; message;", "Hello!"},
 
