@@ -460,3 +460,36 @@ func TestFunctionDeclarationStatement(t *testing.T) {
 		t.Fatalf("Expected redeclaration error for function, got %T", result2)
 	}
 }
+
+func TestReturnStatement(t *testing.T) {
+	input := `
+	return 1;
+	return 2+2;
+	return 3*7;
+	`
+	expected := []int{1, 4, 21}
+
+	env := obj.NewEnv()
+	p := parser.New(input)
+	program := p.ParseProgram()
+
+	if len(program.Statements) != len(expected) {
+		t.Fatalf("Expected %d statements, got %d", len(expected), len(program.Statements))
+	}
+
+	for i, stmt := range program.Statements {
+		returnStmt, ok := stmt.(*ast.ReturnStatement)
+		if !ok {
+			t.Fatalf("[%d] - Expected *ast.ReturnStatement, got %T", i, stmt)
+		}
+
+		result := Eval(returnStmt, env)
+
+		returnObj, ok := result.(*obj.ReturnObject)
+		if !ok {
+			t.Fatalf("[%d] - Expected *obj.ReturnObject, got %T", i, result)
+		}
+
+		testIntegerObject(t, returnObj.Return, expected[i])
+	}
+}

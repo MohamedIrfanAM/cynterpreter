@@ -19,6 +19,7 @@ const (
 	STRING_OBJ   ObjType = "STRING_OBJ"
 	FLOAT_OBJ    ObjType = "FLOAT_OBJ"
 	FUNCTION_OBJ ObjType = "FUNCTION_OBJ"
+	RETURN_OBJ   ObjType = "RETURN_OBJ"
 	RESULTS_OBJ  ObjType = "RESULTS_OBJ"
 )
 
@@ -151,6 +152,19 @@ func (s *StringObject) Type() ObjType {
 
 func (s *StringObject) String() string {
 	return s.Value
+}
+
+// Return Object
+type ReturnObject struct {
+	Return Object
+}
+
+func (r *ReturnObject) Type() ObjType {
+	return RETURN_OBJ
+}
+
+func (r *ReturnObject) String() string {
+	return r.Return.String()
 }
 
 // Results Object

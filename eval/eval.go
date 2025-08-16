@@ -17,6 +17,8 @@ func Eval(node ast.Node, env *obj.Environment) obj.Object {
 		return evalDeclarationStatement(node, env)
 	case *ast.AssignmentStatement:
 		return evalAssignmentStatement(node, env)
+	case *ast.ReturnStatement:
+		return evalReturnStatement(node, env)
 	case *ast.IdentifierExpression:
 		return evalIdentifierExpression(node, env)
 	case *ast.IntegerLiteral:
@@ -46,7 +48,7 @@ func evalProgram(statements []ast.Statement, env *obj.Environment) obj.Object {
 	var result obj.Object
 	for _, stmnt := range statements {
 		result = Eval(stmnt, env)
-		if result.Type() == obj.ERROR_OBJ {
+		if result.Type() == obj.ERROR_OBJ || result.Type() == obj.RETURN_OBJ {
 			return result
 		}
 	}

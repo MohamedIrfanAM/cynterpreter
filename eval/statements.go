@@ -22,7 +22,7 @@ func evalBlock(blk *ast.Block, env *obj.Environment) obj.Object {
 	var results []obj.Object
 	for _, stmnt := range blk.Statements {
 		result := Eval(stmnt, env)
-		if result.Type() == obj.ERROR_OBJ {
+		if result.Type() == obj.ERROR_OBJ || result.Type() == obj.RESULTS_OBJ {
 			return result
 		}
 		results = append(results, result)
@@ -64,4 +64,11 @@ func evalAssignmentStatement(ls *ast.AssignmentStatement, env *obj.Environment) 
 	}
 	env.SetVar(ls.Identifier.Value, val)
 	return obj.NULL
+}
+
+func evalReturnStatement(rs *ast.ReturnStatement, env *obj.Environment) obj.Object {
+	expr := Eval(rs.Expression, env)
+	return &obj.ReturnObject{
+		Return: expr,
+	}
 }
