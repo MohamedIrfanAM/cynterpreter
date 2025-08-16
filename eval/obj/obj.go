@@ -197,9 +197,11 @@ func (r *ResultsObject) Type() ObjType {
 func (r *ResultsObject) String() string {
 	var str strings.Builder
 	for i, result := range r.Results {
-		str.WriteString(result.String())
-		if i < len(r.Results)-1 {
-			str.WriteRune('\n')
+		if result.Type() != NULL_OBJ {
+			str.WriteString(result.String())
+			if i < len(r.Results)-1 {
+				str.WriteRune('\n')
+			}
 		}
 	}
 	return str.String()

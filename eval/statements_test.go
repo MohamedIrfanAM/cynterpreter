@@ -596,3 +596,88 @@ func TestFunctionCall(t *testing.T) {
 		t.Fatalf("Expected error for undefined function call, got %T", result)
 	}
 }
+
+func TestWhileStatement(t *testing.T) {
+	tests := []struct {
+		input    string
+		expected []int
+	}{
+		{"int i = 0; while(i < 3){i = i + 1; i;}", []int{1, 2, 3}},
+		{"int count = 5; while(count > 0){count; count = count - 1;}", []int{5, 4, 3, 2, 1}},
+		{"bool flag = true; int x = 1; while(flag){x; flag = false;}", []int{1}},
+		{"bool flag = false; while(flag){42;}", []int{}},
+		{"int i = 0; while(i < 2){i = i + 1; i * 10; i;}", []int{10, 1, 20, 2}},
+		{"int val = 10; while(val >= 8){val; val = val - 1;}", []int{10, 9, 8}},
+		{"int num = 1; while(num <= 3){num * 5; num = num + 1;}", []int{5, 10, 15}},
+		{"int x = 0; while(x != 2){x = x + 1; x;}", []int{1, 2}},
+		{"int i = 0; while(i < 2){i = i + 1;}", []int{}},
+		{"int once = 0; while(once == 0){999; once = 1;}", []int{999}},
+		{"while(false){123;}", []int{}},
+		{"int x = 5; while(x < 0){x;}", []int{}},
+		{"int a = 2; int b = 3; while(a * b < 10){a * b; a = a + 1;}", []int{6, 9}},
+	}
+
+	for i, tt := range tests {
+		env := obj.NewEnv()
+		p := parser.New(tt.input)
+		program := p.ParseProgram()
+
+		var result obj.Object
+		for _, stmt := range program.Statements {
+			result = Eval(stmt, env)
+			if result.Type() == obj.ERROR_OBJ {
+				t.Fatalf("[%d] - Evaluation error: %s", i, result.String())
+			}
+		}
+
+		var whileResult obj.Object
+		if result != nil && result.Type() == obj.RESULTS_OBJ {
+			whileResult = result
+		} else {
+			for j := len(program.Statements) - 1; j >= 0; j-- {
+				if _, ok := program.Statements[j].(*ast.WhileStatement); ok {
+					whileResult = Eval(program.Statements[j], env)
+					break
+				}
+			}
+		}
+
+		if len(tt.expected) == 0 {
+			if whileResult == nil || whileResult.Type() == obj.NULL_OBJ {
+				continue
+			}
+			if resultsObj, ok := whileResult.(*obj.ResultsObject); ok {
+				var nonNullResults []obj.Object
+				for _, object := range resultsObj.Results {
+					if object.Type() != obj.NULL_OBJ {
+						nonNullResults = append(nonNullResults, object)
+					}
+				}
+				if len(nonNullResults) == 0 {
+					continue
+				}
+			}
+			t.Fatalf("[%d] - Expected no results, but got: %v", i, whileResult)
+		}
+
+		resultsObj, ok := whileResult.(*obj.ResultsObject)
+		if !ok {
+			t.Fatalf("[%d] - Expected *obj.ResultsObject, got %T", i, whileResult)
+		}
+
+		var nonNullResults []obj.Object
+		for _, object := range resultsObj.Results {
+			if object.Type() != obj.NULL_OBJ {
+				nonNullResults = append(nonNullResults, object)
+			}
+		}
+
+		if len(nonNullResults) != len(tt.expected) {
+			t.Fatalf("[%d] - Expected %d results, got %d", i, len(tt.expected), len(nonNullResults))
+		}
+
+		for j, object := range nonNullResults {
+			testIntegerObject(t, object, tt.expected[j])
+		}
+	}
+}

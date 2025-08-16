@@ -32,3 +32,20 @@ func (env *Environment) ExtendEnv() *Environment {
 	}
 	return newEnv
 }
+
+func (env *Environment) CopyEnv() *Environment {
+	newEnv := NewEnv()
+	for k, v := range env.memory {
+		newEnv.memory[k] = v
+	}
+	return newEnv
+}
+
+func (env *Environment) UpdateVals(newEnv *Environment) {
+	for k := range env.memory {
+		val, ok := newEnv.memory[k]
+		if ok {
+			env.memory[k] = val
+		}
+	}
+}

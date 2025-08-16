@@ -76,3 +76,22 @@ func evalReturnStatement(rs *ast.ReturnStatement, env *obj.Environment) obj.Obje
 		Return: expr,
 	}
 }
+
+func evalWhileLoop(wl *ast.WhileStatement, env *obj.Environment) obj.Object {
+	conditionVal := Eval(wl.Condition, env)
+	condition := IsTrue(conditionVal)
+	results := &obj.ResultsObject{}
+	for condition {
+		newEnv := env.CopyEnv()
+		result := evalBlock(wl.Block, newEnv)
+		env.UpdateVals(newEnv)
+		if resultVal, ok := result.(*obj.ResultsObject); ok {
+			results.Results = append(results.Results, resultVal.Results...)
+		} else if result.Type() == obj.RETURN_OBJ || result.Type() == obj.ERROR_OBJ {
+			return result
+		}
+		conditionVal = Eval(wl.Condition, env)
+		condition = IsTrue(conditionVal)
+	}
+	return results
+}

@@ -42,7 +42,7 @@ func REPL(in io.Reader, out io.Writer) {
 		if result.Type() != obj.NULL_OBJ {
 			fmt.Println(result.String())
 		}
-		if result.Type() == obj.RESULTS_OBJ {
+		if result.Type() == obj.RETURN_OBJ {
 			fmt.Println("error: Return statement outside function")
 		}
 
