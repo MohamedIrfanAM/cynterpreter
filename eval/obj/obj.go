@@ -43,6 +43,8 @@ func GetObjectType(tknType token.TokenType) ObjType {
 		return FLOAT_OBJ
 	case token.DOUBLE:
 		return FLOAT_OBJ
+	case token.VOID:
+		return NULL_OBJ
 	default:
 		return ERROR_OBJ
 	}
