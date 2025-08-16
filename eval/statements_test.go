@@ -493,3 +493,105 @@ func TestReturnStatement(t *testing.T) {
 		testIntegerObject(t, returnObj.Return, expected[i])
 	}
 }
+
+func TestFunctionCall(t *testing.T) {
+	tests := []struct {
+		input    string
+		expected interface{}
+	}{
+		{
+			input: `int add(int a, int b){
+				return a+b;
+			}
+			add(10,30);`,
+			expected: 40,
+		},
+		{
+			input: `float multiply(float x, float y){
+				return x * y;
+			}
+			multiply(2.5, 4.0);`,
+			expected: 10.0,
+		},
+		{
+			input: `bool isEmpty(){
+				return true;
+			}
+			isEmpty();`,
+			expected: true,
+		},
+		{
+			input: `string greet(string name){
+				string message = "Hello, ";
+				message = message + name;
+				return message;
+			}
+			greet("World");`,
+			expected: "Hello, World",
+		},
+		{
+			input: `int factorial(int n){
+				if(n <= 1){
+					return 1;
+				}
+				return n * factorial(n - 1);
+			}
+			factorial(5);`,
+			expected: 120,
+		},
+	}
+
+	for i, tt := range tests {
+		env := obj.NewEnv()
+		p := parser.New(tt.input)
+		program := p.ParseProgram()
+
+		var result obj.Object
+		for _, stmt := range program.Statements {
+			result = Eval(stmt, env)
+			if result.Type() == obj.ERROR_OBJ {
+				t.Fatalf("[%d] - Evaluation error: %s", i, result.String())
+			}
+		}
+
+		// If the result is a return object, unwrap it
+		if returnObj, ok := result.(*obj.ReturnObject); ok {
+			result = returnObj.Return
+		}
+
+		switch expected := tt.expected.(type) {
+		case int:
+			testIntegerObject(t, result, expected)
+		case float64:
+			testFloatObject(t, result, expected)
+		case bool:
+			testBooleanObject(t, result, expected)
+		case string:
+			testStringObject(t, result, expected)
+		default:
+			t.Fatalf("[%d] - Unsupported expected type %T", i, expected)
+		}
+	}
+
+	// Test function call with wrong number of arguments
+	env := obj.NewEnv()
+	input := `int add(int a, int b){return a+b;} add(10);`
+	p := parser.New(input)
+	program := p.ParseProgram()
+
+	Eval(program.Statements[0], env)           // Declare function
+	result := Eval(program.Statements[1], env) // Call with wrong args
+	if result.Type() != obj.ERROR_OBJ {
+		t.Fatalf("Expected error for wrong number of arguments, got %T", result)
+	}
+
+	// Test calling undefined function
+	env = obj.NewEnv()
+	input = `undefinedFunction();`
+	p = parser.New(input)
+	program = p.ParseProgram()
+	result = Eval(program.Statements[0], env)
+	if result.Type() != obj.ERROR_OBJ {
+		t.Fatalf("Expected error for undefined function call, got %T", result)
+	}
+}

@@ -22,7 +22,7 @@ func evalBlock(blk *ast.Block, env *obj.Environment) obj.Object {
 	var results []obj.Object
 	for _, stmnt := range blk.Statements {
 		result := Eval(stmnt, env)
-		if result.Type() == obj.ERROR_OBJ || result.Type() == obj.RESULTS_OBJ {
+		if result.Type() == obj.ERROR_OBJ || result.Type() == obj.RETURN_OBJ {
 			return result
 		}
 		results = append(results, result)

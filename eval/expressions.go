@@ -342,3 +342,35 @@ func IsTrue(val obj.Object) bool {
 		return true
 	}
 }
+
+func evalCallExpression(ce *ast.CallExpression, env *obj.Environment) obj.Object {
+	object, ok := env.GetVar(ce.Function.String())
+	if !ok {
+		return obj.NewError(fmt.Errorf("error calling function %s, function not found", ce.Function.String()))
+	}
+	funcObj, ok := object.(*obj.FunctionObject)
+	if !ok {
+		return obj.NewError(fmt.Errorf("error calling function %s, identifier not associated with a function", ce.Function.String()))
+	}
+	if len(funcObj.Params) != len(ce.Args) {
+		return obj.NewError(fmt.Errorf("error calling function %s, number of args and parameter mismatch, Parameters - %d, Args - %d", ce.Function.String(), len(funcObj.Params), len(ce.Args)))
+	}
+	newEnv := env.ExtendEnv()
+	// validate parameter argument pairs and assign args to params
+	for i, param := range funcObj.Params {
+		arg := Eval(ce.Args[i], env)
+		if obj.GetObjectType(param.Type) != arg.Type() {
+			return obj.NewError(fmt.Errorf("error calling function %s, type of parameter %s mismatch, expected %s, got %s", ce.Function, param.Identifier, param.Type, arg.Type()))
+		}
+		newEnv.SetVar(param.Identifier.Value, arg)
+	}
+	returnObj := evalBlock(funcObj.Block, newEnv)
+	returnVal, ok := returnObj.(*obj.ReturnObject)
+	if !ok {
+		return obj.NewError(fmt.Errorf("error calling function %s, expected return value of type %s, got none", ce.Function, funcObj.ReturnType))
+	}
+	if returnVal.Return.Type() != funcObj.ReturnType {
+		return obj.NewError(fmt.Errorf("error calling function %s, return value type mismatch, expected %s, got %s", ce.Function, funcObj.ReturnType, returnVal.Return.Type()))
+	}
+	return returnVal.Return
+}

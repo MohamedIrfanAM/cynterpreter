@@ -22,3 +22,13 @@ func (env *Environment) GetVar(varname string) (Object, bool) {
 	}
 	return nil, false
 }
+
+func (env *Environment) ExtendEnv() *Environment {
+	newEnv := NewEnv()
+	for k, v := range env.memory {
+		if v.Type() == FUNCTION_OBJ {
+			newEnv.memory[k] = v
+		}
+	}
+	return newEnv
+}
