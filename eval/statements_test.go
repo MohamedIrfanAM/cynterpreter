@@ -355,3 +355,108 @@ func TestVariableUsage(t *testing.T) {
 		}
 	}
 }
+
+func TestFunctionDeclarationStatement(t *testing.T) {
+	tests := []struct {
+		input      string
+		varName    string
+		paramCount int
+		blockLen   int
+	}{
+		{
+			input: `int add(int a, int b){
+				return a+b;
+			}`,
+			varName:    "add",
+			paramCount: 2,
+			blockLen:   1,
+		},
+		{
+			input: `float multiply(float x, float y, float z){
+				float result = x * y * z;
+				return result;
+			}`,
+			varName:    "multiply",
+			paramCount: 3,
+			blockLen:   2,
+		},
+		{
+			input: `bool isEmpty(){
+				return true;
+			}`,
+			varName:    "isEmpty",
+			paramCount: 0,
+			blockLen:   1,
+		},
+		{
+			input: `string greet(string name){
+				string message = "Hello, ";
+				message = message + name;
+				return message;
+			}`,
+			varName:    "greet",
+			paramCount: 1,
+			blockLen:   3,
+		},
+	}
+
+	for i, tt := range tests {
+		env := obj.NewEnv()
+		p := parser.New(tt.input)
+		program := p.ParseProgram()
+
+		if len(program.Statements) != 1 {
+			t.Fatalf("[%d] Expected 1 statement, got %d", i, len(program.Statements))
+		}
+
+		stmnt, ok := program.Statements[0].(*ast.DeclarationStatement)
+		if !ok {
+			t.Fatalf("[%d] - Not valid statement, expected *ast.DeclarationStatement got %T", i, stmnt)
+		}
+
+		result := Eval(stmnt, env)
+		if result.Type() == obj.ERROR_OBJ {
+			t.Fatalf("[%d] - Evaluation error: %s", i, result.String())
+		}
+
+		storedObj, exists := env.GetVar(tt.varName)
+		if !exists {
+			t.Fatalf("[%d] - Function %s not found in environment", i, tt.varName)
+		}
+
+		functionObj, ok := storedObj.(*obj.FunctionObject)
+		if !ok {
+			t.Fatalf("[%d] - Expected FunctionObject, got %T", i, storedObj)
+		}
+
+		if len(functionObj.Params) != tt.paramCount {
+			t.Errorf("[%d] - Expected %d parameters, got %d", i, tt.paramCount, len(functionObj.Params))
+		}
+
+		if len(functionObj.Block.Statements) != tt.blockLen {
+			t.Errorf("[%d] - Expected %d statements in block, got %d", i, tt.blockLen, len(functionObj.Block.Statements))
+		}
+
+		// Verify return type matches declaration type
+		expectedReturnType := obj.GetObjectType(stmnt.Type)
+		if functionObj.ReturnType != expectedReturnType {
+			t.Errorf("[%d] - Expected return type %s, got %s", i, expectedReturnType, functionObj.ReturnType)
+		}
+	}
+
+	// Test function redeclaration error
+	env := obj.NewEnv()
+	input := `int test(){return 1;} int test(){return 2;}`
+	p := parser.New(input)
+	program := p.ParseProgram()
+
+	result1 := Eval(program.Statements[0], env)
+	if result1.Type() == obj.ERROR_OBJ {
+		t.Fatalf("First function declaration should succeed: %s", result1.String())
+	}
+
+	result2 := Eval(program.Statements[1], env)
+	if result2.Type() != obj.ERROR_OBJ {
+		t.Fatalf("Expected redeclaration error for function, got %T", result2)
+	}
+}

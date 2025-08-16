@@ -5,20 +5,21 @@ import (
 	"strings"
 
 	"github.com/mohamedirfanam/cynterpreter/lexer/token"
+	"github.com/mohamedirfanam/cynterpreter/parser/ast"
 )
 
 type ObjType string
 
 const (
-	ERROR_OBJ   ObjType = "ERROR_OBJ"
-	NULL_OBJ    ObjType = "NULL_OBJ"
-	INTEGER_OBJ ObjType = "INTEGER_OBJ"
-	BOOLEAN_OBJ ObjType = "BOOLEAN_OBJ"
-	CHAR_OBJ    ObjType = "CHAR_OBJ"
-	STRING_OBJ  ObjType = "STRING_OBJ"
-	FLOAT_OBJ   ObjType = "FLOAT_OBJ"
-
-	RESULTS_OBJ ObjType = "RESULTS_OBJ"
+	ERROR_OBJ    ObjType = "ERROR_OBJ"
+	NULL_OBJ     ObjType = "NULL_OBJ"
+	INTEGER_OBJ  ObjType = "INTEGER_OBJ"
+	BOOLEAN_OBJ  ObjType = "BOOLEAN_OBJ"
+	CHAR_OBJ     ObjType = "CHAR_OBJ"
+	STRING_OBJ   ObjType = "STRING_OBJ"
+	FLOAT_OBJ    ObjType = "FLOAT_OBJ"
+	FUNCTION_OBJ ObjType = "FUNCTION_OBJ"
+	RESULTS_OBJ  ObjType = "RESULTS_OBJ"
 )
 
 var (
@@ -170,4 +171,27 @@ func (r *ResultsObject) String() string {
 		}
 	}
 	return str.String()
+}
+
+// Function Object
+type FunctionObject struct {
+	ReturnType ObjType
+	Block      *ast.Block
+	Params     []*ast.Parameter
+}
+
+func (f *FunctionObject) Type() ObjType {
+	return FUNCTION_OBJ
+}
+
+func (f *FunctionObject) String() string {
+	return ""
+}
+
+func GetFunctionObject(returnType ObjType, fl *ast.FunctionLiteral) Object {
+	return &FunctionObject{
+		ReturnType: returnType,
+		Block:      fl.Block,
+		Params:     fl.Params,
+	}
 }
