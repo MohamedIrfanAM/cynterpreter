@@ -555,7 +555,6 @@ func TestFunctionCall(t *testing.T) {
 			}
 		}
 
-		// If the result is a return object, unwrap it
 		if returnObj, ok := result.(*obj.ReturnObject); ok {
 			result = returnObj.Return
 		}
@@ -574,7 +573,6 @@ func TestFunctionCall(t *testing.T) {
 		}
 	}
 
-	// Test function call with wrong number of arguments
 	env := obj.NewEnv()
 	input := `int add(int a, int b){return a+b;} add(10);`
 	p := parser.New(input)
@@ -586,7 +584,6 @@ func TestFunctionCall(t *testing.T) {
 		t.Fatalf("Expected error for wrong number of arguments, got %T", result)
 	}
 
-	// Test calling undefined function
 	env = obj.NewEnv()
 	input = `undefinedFunction();`
 	p = parser.New(input)
@@ -663,6 +660,89 @@ func TestWhileStatement(t *testing.T) {
 		resultsObj, ok := whileResult.(*obj.ResultsObject)
 		if !ok {
 			t.Fatalf("[%d] - Expected *obj.ResultsObject, got %T", i, whileResult)
+		}
+
+		var nonNullResults []obj.Object
+		for _, object := range resultsObj.Results {
+			if object.Type() != obj.NULL_OBJ {
+				nonNullResults = append(nonNullResults, object)
+			}
+		}
+
+		if len(nonNullResults) != len(tt.expected) {
+			t.Fatalf("[%d] - Expected %d results, got %d", i, len(tt.expected), len(nonNullResults))
+		}
+
+		for j, object := range nonNullResults {
+			testIntegerObject(t, object, tt.expected[j])
+		}
+	}
+}
+
+func TestForStatement(t *testing.T) {
+	tests := []struct {
+		input    string
+		expected []int
+	}{
+		{"for(int i = 0; i < 3; i = i + 1){i;}", []int{0, 1, 2}},
+		{"for(int count = 5; count > 2; count = count - 1){count;}", []int{5, 4, 3}},
+		{"for(int x = 1; x <= 3; x = x + 1){x * 10;}", []int{10, 20, 30}},
+		{"for(bool flag = true; flag; flag = false){42;}", []int{42}},
+		{"for(int val = 8; val <= 10; val = val + 1){val;}", []int{8, 9, 10}},
+		{"for(int num = 1; num <= 3; num = num + 1){num * 2; num;}", []int{2, 1, 4, 2, 6, 3}},
+		{"for(int x = 0; x != 2; x = x + 1){x + 1;}", []int{1, 2}},
+		{"for(int i = 0; i < 2; i = i + 1){}", []int{}},
+		{"for(int once = 0; once == 0; once = 1){999;}", []int{999}},
+		{"for(bool done = false; done; done = true){123;}", []int{}},
+		{"for(int x = 5; x < 0; x = x + 1){x;}", []int{}},
+	}
+
+	for i, tt := range tests {
+		env := obj.NewEnv()
+		p := parser.New(tt.input)
+		program := p.ParseProgram()
+
+		var result obj.Object
+		for _, stmt := range program.Statements {
+			result = Eval(stmt, env)
+			if result.Type() == obj.ERROR_OBJ {
+				t.Fatalf("[%d] - Evaluation error: %s", i, result.String())
+			}
+		}
+
+		var forResult obj.Object
+		if result != nil && result.Type() == obj.RESULTS_OBJ {
+			forResult = result
+		} else {
+			for j := len(program.Statements) - 1; j >= 0; j-- {
+				if _, ok := program.Statements[j].(*ast.ForStatement); ok {
+					forResult = Eval(program.Statements[j], env)
+					break
+				}
+			}
+		}
+
+		if len(tt.expected) == 0 {
+			if forResult == nil || forResult.Type() == obj.NULL_OBJ {
+				continue
+			}
+			if resultsObj, ok := forResult.(*obj.ResultsObject); ok {
+				var nonNullResults []obj.Object
+				for _, object := range resultsObj.Results {
+					if object.Type() != obj.NULL_OBJ {
+						nonNullResults = append(nonNullResults, object)
+					}
+				}
+				if len(nonNullResults) == 0 {
+					continue
+				}
+			}
+			t.Fatalf("[%d] - Expected no results, but got: %v", i, forResult)
+		}
+
+		resultsObj, ok := forResult.(*obj.ResultsObject)
+		if !ok {
+			t.Fatalf("[%d] - Expected *obj.ResultsObject, got %T", i, forResult)
 		}
 
 		var nonNullResults []obj.Object

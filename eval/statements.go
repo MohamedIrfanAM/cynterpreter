@@ -95,3 +95,26 @@ func evalWhileLoop(wl *ast.WhileStatement, env *obj.Environment) obj.Object {
 	}
 	return results
 }
+
+func evalForLoop(fl *ast.ForStatement, env *obj.Environment) obj.Object {
+	results := &obj.ResultsObject{}
+	dupEnv := env.CopyEnv()
+	Eval(fl.InitializationStatement, dupEnv)
+	conditionVal := Eval(fl.Condition, dupEnv)
+	condition := IsTrue(conditionVal)
+	for condition {
+		newEnv := dupEnv.CopyEnv()
+		result := evalBlock(fl.Block, newEnv)
+		dupEnv.UpdateVals(newEnv)
+		if resultVal, ok := result.(*obj.ResultsObject); ok {
+			results.Results = append(results.Results, resultVal.Results...)
+		} else if result.Type() == obj.RETURN_OBJ || result.Type() == obj.ERROR_OBJ {
+			return result
+		}
+		Eval(fl.Increment, dupEnv)
+		conditionVal = Eval(fl.Condition, dupEnv)
+		condition = IsTrue(conditionVal)
+	}
+	env.UpdateVals(dupEnv)
+	return results
+}

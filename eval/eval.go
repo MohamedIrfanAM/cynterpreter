@@ -15,6 +15,8 @@ func Eval(node ast.Node, env *obj.Environment) obj.Object {
 		return evalIfStatement(node, env)
 	case *ast.WhileStatement:
 		return evalWhileLoop(node, env)
+	case *ast.ForStatement:
+		return evalForLoop(node, env)
 	case *ast.DeclarationStatement:
 		return evalDeclarationStatement(node, env)
 	case *ast.AssignmentStatement:
