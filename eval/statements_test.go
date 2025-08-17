@@ -190,6 +190,17 @@ func TestAssignmentStatement(t *testing.T) {
 		{"int zero = 100;", "zero = 0;", "zero", int64(0)},
 		{"bool flag = true;", "flag = false;", "flag", false},
 		{"float negative = 1.0;", "negative = -3.14;", "negative", -3.14},
+		{"int x = 10;", "x += 5;", "x", int64(15)},
+		{"int y = 20;", "y -= 8;", "y", int64(12)},
+		{"int z = 6;", "z *= 4;", "z", int64(24)},
+		{"int w = 15;", "w /= 3;", "w", int64(5)},
+		{"float a = 2.5;", "a += 1.5;", "a", 4.0},
+		{"float b = 10.0;", "b -= 3.5;", "b", 6.5},
+		{"float c = 3.0;", "c *= 2.0;", "c", 6.0},
+		{"float d = 8.0;", "d /= 2.0;", "d", 4.0},
+		{"string str = \"Hello\";", "str += \" World\";", "str", "Hello World"},
+		{"int neg = 5;", "neg -= 10;", "neg", int64(-5)},
+		{"float zero = 5.0;", "zero *= 0.0;", "zero", 0.0},
 	}
 
 	for i, tt := range tests {

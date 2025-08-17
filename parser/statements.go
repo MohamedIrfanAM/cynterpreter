@@ -80,8 +80,14 @@ func (p *Parser) parseAssignmentStatement(semCol bool) *ast.AssignmentStatement 
 		if !token.IsAssignmentOp(p.curToken.TokenType) {
 			p.errors = append(p.errors, fmt.Errorf("expected assignment op for assigment statement , Got - %s", p.curToken.TokenType))
 		}
+		opTkn := p.curToken
 		p.nextToken()
-		stmnt.Literal = p.parseExpression(LOWEST)
+		exp := p.parseExpression(LOWEST)
+		if opTkn.TokenType != token.ASSIGN {
+			stmnt.Literal = getOpInfixExpression(ident, exp, opTkn.TokenType)
+		} else {
+			stmnt.Literal = exp
+		}
 		if semCol {
 			p.expectPeekToken(token.SEMCOL)
 		}

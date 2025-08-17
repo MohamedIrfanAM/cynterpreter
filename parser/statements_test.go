@@ -224,6 +224,14 @@ func TestAssignmentStatements(t *testing.T) {
 	comparison = a > b;
 	funcCall = add(5, 10);
 	nested = calculate(x + y, z);
+	x += 5;
+	count -= 10;
+	value *= 2;
+	total /= 4;
+	score += func(a, b);
+	result -= (x + y);
+	product *= calculate(z);
+	average /= count + 1;
 	`
 	expected := []struct {
 		identifier string
@@ -245,6 +253,14 @@ func TestAssignmentStatements(t *testing.T) {
 		{"comparison", "(a > b)"},
 		{"funcCall", "add(5, 10)"},
 		{"nested", "calculate((x + y), z)"},
+		{"x", "(x + 5)"},
+		{"count", "(count - 10)"},
+		{"value", "(value * 2)"},
+		{"total", "(total / 4)"},
+		{"score", "(score + func(a, b))"},
+		{"result", "(result - (x + y))"},
+		{"product", "(product * calculate(z))"},
+		{"average", "(average / (count + 1))"},
 	}
 
 	p := New(input)

@@ -201,3 +201,16 @@ var Datatypes = []TokenType{
 var AssignmentOps = []TokenType{
 	ASSIGN, MINUSEQ, PLUSEQ, ASTEREQ, SLASHEQ, PERCENTEQ, PIPEEQ, XOREQ, LSHIFTEQ, RSHIFTEQ, AMPEQ,
 }
+
+var AssignmentOpMap = map[TokenType]Token{
+	MINUSEQ:   {TokenType: MINUS, Lexeme: "-"},
+	PLUSEQ:    {TokenType: PLUS, Lexeme: "+"},
+	ASTEREQ:   {TokenType: ASTER, Lexeme: "*"},
+	SLASHEQ:   {TokenType: SLASH, Lexeme: "/"},
+	PERCENTEQ: {TokenType: PERCENT, Lexeme: "%"},
+	PIPEEQ:    {TokenType: PIPE, Lexeme: "|"},
+	XOREQ:     {TokenType: XOR, Lexeme: "^"},
+	LSHIFTEQ:  {TokenType: LSHIFT, Lexeme: "<<"},
+	RSHIFTEQ:  {TokenType: RSHIFT, Lexeme: ">>"},
+	AMPEQ:     {TokenType: AMP, Lexeme: "&"},
+}

@@ -167,6 +167,17 @@ func (p *Parser) parseInfixExpression(leftExp ast.Expression) ast.Expression {
 	return exp
 }
 
+func getOpInfixExpression(ident ast.Expression, expr ast.Expression, opType token.TokenType) ast.Expression {
+	tkn := token.AssignmentOpMap[opType]
+	exp := &ast.InfixExpression{
+		Token:    tkn,
+		LeftExp:  ident,
+		Op:       tkn.Lexeme,
+		RightExp: expr,
+	}
+	return exp
+}
+
 func (p *Parser) parseGroupedExpression() ast.Expression {
 	p.nextToken()
 	exp := p.parseExpression(LOWEST)
