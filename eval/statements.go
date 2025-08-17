@@ -71,6 +71,11 @@ func evalAssignmentStatement(ls *ast.AssignmentStatement, env *obj.Environment) 
 }
 
 func evalReturnStatement(rs *ast.ReturnStatement, env *obj.Environment) obj.Object {
+	if rs.Expression == nil {
+		return &obj.ReturnObject{
+			Return: obj.NULL,
+		}
+	}
 	expr := Eval(rs.Expression, env)
 	return &obj.ReturnObject{
 		Return: expr,

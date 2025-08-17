@@ -365,14 +365,15 @@ func evalCallExpression(ce *ast.CallExpression, env *obj.Environment) obj.Object
 		newEnv.SetVar(param.Identifier.Value, arg)
 	}
 	returnObj := evalBlock(funcObj.Block, newEnv)
+	returnVal, ok := returnObj.(*obj.ReturnObject)
+
 	if funcObj.ReturnType == obj.NULL_OBJ {
-		if returnObj.Type() == obj.RESULTS_OBJ {
+		if returnObj.Type() == obj.RESULTS_OBJ || (returnObj.Type() == obj.RETURN_OBJ && returnVal.Return == obj.NULL) {
 			return obj.NULL
-		} else if returnObj.Type() == obj.RETURN_OBJ {
+		} else {
 			return obj.NewError(fmt.Errorf("invalid return from a void function %s, no return expected", ce.Function))
 		}
 	}
-	returnVal, ok := returnObj.(*obj.ReturnObject)
 	if !ok {
 		return obj.NewError(fmt.Errorf("error calling function %s, expected return value of type %s, got none", ce.Function, funcObj.ReturnType))
 	}

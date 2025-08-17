@@ -105,6 +105,9 @@ func (p *Parser) parseReturnStatement() *ast.ReturnStatement {
 		Token: p.curToken,
 	}
 	p.nextToken()
+	if p.curTokenIs(token.SEMCOL) {
+		return stmnt
+	}
 	expr := p.parseExpression(LOWEST)
 	stmnt.Expression = expr
 	p.expectPeekToken(token.SEMCOL)
