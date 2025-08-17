@@ -68,6 +68,23 @@ func GetDefaultVal(tknType token.TokenType) Object {
 	}
 }
 
+func ExtractVal(object Object) any {
+	switch o := object.(type) {
+	case *IntegerObject:
+		return o.Value
+	case *FloatObject:
+		return o.Value
+	case *CharObject:
+		return o.Value
+	case *StringObject:
+		return o.Value
+	case *BooleanObject:
+		return o.Value
+	default:
+		return o.String()
+	}
+}
+
 type Object interface {
 	Type() ObjType
 	String() string

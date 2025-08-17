@@ -344,6 +344,13 @@ func IsTrue(val obj.Object) bool {
 }
 
 func evalCallExpression(ce *ast.CallExpression, env *obj.Environment) obj.Object {
+	// Check if it's a built in function
+	result, ok := ApplyBuiltInFunc(ce.Function.String(), ce.Args, env)
+	if ok {
+		return result
+	}
+
+	// Fetch the function definition from memory
 	object, ok := env.GetVar(ce.Function.String())
 	if !ok {
 		return obj.NewError(fmt.Errorf("error calling function %s, function not found", ce.Function.String()))
@@ -364,9 +371,11 @@ func evalCallExpression(ce *ast.CallExpression, env *obj.Environment) obj.Object
 		}
 		newEnv.SetVar(param.Identifier.Value, arg)
 	}
+
 	returnObj := evalBlock(funcObj.Block, newEnv)
 	returnVal, ok := returnObj.(*obj.ReturnObject)
 
+	// validate return
 	if funcObj.ReturnType == obj.NULL_OBJ {
 		if returnObj.Type() == obj.RESULTS_OBJ || (returnObj.Type() == obj.RETURN_OBJ && returnVal.Return == obj.NULL) {
 			return obj.NULL
