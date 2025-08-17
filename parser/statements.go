@@ -54,6 +54,8 @@ func (p *Parser) parseDeclarationStatement() *ast.DeclarationStatement {
 		return stmnt
 	} else if p.curTokenIs(token.LPAREN) {
 		stmnt.Literal = p.parseFunctionLiteral(stmnt.Identifier)
+	} else if p.curTokenIs(token.LBRACK) {
+		stmnt.Literal = p.parseArrayDeclaration(tkn, stmnt.Identifier)
 	} else {
 		if p.curToken.TokenType != token.ASSIGN {
 			p.errors = append(p.errors, fmt.Errorf("expected '=' Sign for assigment in declaration, Got - %s", p.curToken.TokenType))

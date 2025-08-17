@@ -239,3 +239,62 @@ func (p *Parser) parseFunctionParam() *ast.Parameter {
 	param.Identifier = ident.(*ast.IdentifierExpression)
 	return param
 }
+
+func (p *Parser) parseArrayDeclaration(tkn token.Token, arrIdentifier *ast.IdentifierExpression) *ast.ArrayDeclaration {
+	expr := &ast.ArrayDeclaration{
+		Token:     tkn,
+		Type:      tkn.TokenType,
+		Identifer: *arrIdentifier,
+		Length:    -1,
+	}
+
+	p.nextToken()
+	if p.curTokenIs(token.INT_LITERAL) {
+		len, _ := strconv.ParseInt(p.curToken.Lexeme, 10, 32)
+		expr.Length = int(len)
+		p.nextToken()
+	} else if !p.curTokenIs(token.RBRACK) {
+		p.errors = append(p.errors, fmt.Errorf("invalid token as array length found"))
+		return nil
+	}
+
+	if p.peekTokenIs(token.SEMCOL) {
+		if expr.Length == -1 {
+			p.errors = append(p.errors, fmt.Errorf("array declaration without specifying length or assigning array literal"))
+			return nil
+		}
+		p.nextToken()
+		return expr
+	}
+	p.expectPeekToken(token.ASSIGN)
+	p.expectPeekToken(token.LBRACE)
+	p.nextToken()
+
+	vals := p.parseArrayLiteral()
+	if expr.Length != -1 && expr.Length != len(vals) {
+		p.errors = append(p.errors, fmt.Errorf("length of the array declared, mismatch. Declared %d, assigned %d", expr.Length, len(vals)))
+		return nil
+	}
+	expr.Length = len(vals)
+	expr.Literal = vals
+	p.expectPeekToken(token.SEMCOL)
+	return expr
+}
+
+func (p *Parser) parseArrayLiteral() []ast.Expression {
+	var vals []ast.Expression
+	if p.curTokenIs(token.RBRACK) {
+		return vals
+	}
+	vals = append(vals, p.parseExpression(LOWEST))
+	for p.peekTokenIs(token.COMMA) {
+		p.nextToken()
+		p.nextToken()
+		vals = append(vals, p.parseExpression(LOWEST))
+	}
+	if !p.expectPeekToken(token.RBRACE) {
+		p.errors = append(p.errors, fmt.Errorf("missing closing bracket ] for array declaration"))
+		return nil
+	}
+	return vals
+}

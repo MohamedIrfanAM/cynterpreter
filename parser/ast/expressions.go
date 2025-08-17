@@ -1,6 +1,7 @@
 package ast
 
 import (
+	"fmt"
 	"strings"
 
 	"github.com/mohamedirfanam/cynterpreter/lexer/token"
@@ -219,4 +220,31 @@ func (param Parameter) TokenLexeme() string {
 }
 func (param Parameter) String() string {
 	return param.TokenLexeme() + " " + param.Identifier.String()
+}
+
+// Array Declaration Node
+type ArrayDeclaration struct {
+	Token     token.Token
+	Type      token.TokenType
+	Identifer IdentifierExpression
+	Length    int
+	Literal   []Expression
+}
+
+func (arr ArrayDeclaration) TokenLexeme() string {
+	return arr.Token.Lexeme
+}
+func (arr ArrayDeclaration) expressionNode() {}
+func (arr ArrayDeclaration) String() string {
+	var str strings.Builder
+	str.WriteString(arr.Identifer.Value + "[" + fmt.Sprint(arr.Length) + "]")
+	str.WriteString(" =  {")
+	for i, lit := range arr.Literal {
+		str.WriteString(lit.String())
+		if i < len(arr.Literal)-1 {
+			str.WriteString(",")
+		}
+	}
+	str.WriteString("}")
+	return str.String()
 }

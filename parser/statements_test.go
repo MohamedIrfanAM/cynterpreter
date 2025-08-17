@@ -647,3 +647,80 @@ func TestForStatement(t *testing.T) {
 		t.Errorf("Statement 2 in for body is not a DeclarationStatement, got %T", stmnt.Block.Statements[2])
 	}
 }
+
+func TestArrayDeclaration(t *testing.T) {
+	input := `
+	int arr1[5];
+	char str[10];
+	float values[3] = {1.0, 2.5, 3.14};
+	bool flags[] = {true, false, true};
+	string names[2] = {"hello", "world"};
+	int numbers[4] = {1, 2, 3, 4};
+	char letters[] = {'a', 'b', 'c'};
+	`
+	expected := []struct {
+		tokenType  token.TokenType
+		identifier string
+		length     int
+		hasLiteral bool
+		literalLen int
+	}{
+		{token.INT, "arr1", 5, false, 0},
+		{token.CHAR, "str", 10, false, 0},
+		{token.FLOAT, "values", 3, true, 3},
+		{token.BOOL, "flags", 3, true, 3},
+		{token.STRING, "names", 2, true, 2},
+		{token.INT, "numbers", 4, true, 4},
+		{token.CHAR, "letters", 3, true, 3},
+	}
+
+	p := New(input)
+	program := p.ParseProgram()
+
+	if len(p.Errors()) != 0 {
+		for _, err := range p.Errors() {
+			t.Errorf("Parser Error: %s\n", err.Error())
+		}
+		t.Fatal("Exiting now!")
+	}
+
+	if len(program.Statements) != len(expected) {
+		t.Fatalf("Expected %d statements, got %d", len(expected), len(program.Statements))
+	}
+
+	for i, statement := range program.Statements {
+		stmt, ok := statement.(*ast.DeclarationStatement)
+		if !ok {
+			t.Fatalf("Statement %d is not of type ast.DeclarationStatement, got %T", i, statement)
+		}
+
+		if stmt.Type != expected[i].tokenType {
+			t.Errorf("[%d] - Declaration type not valid, expected %s, got %s", i, expected[i].tokenType, stmt.Type)
+		}
+
+		if stmt.Identifier.String() != expected[i].identifier {
+			t.Errorf("[%d] - Declaration Identifier name not correct, expected %s, got %s", i, expected[i].identifier, stmt.Identifier.String())
+		}
+
+		arrayLiteral, ok := stmt.Literal.(*ast.ArrayDeclaration)
+		if !ok {
+			t.Fatalf("[%d] - Literal is not of type ast.ArrayDeclaration, got %T", i, stmt.Literal)
+		}
+
+		if arrayLiteral.Length != expected[i].length {
+			t.Errorf("[%d] - Array length not correct, expected %d, got %d", i, expected[i].length, arrayLiteral.Length)
+		}
+
+		if expected[i].hasLiteral {
+			if arrayLiteral.Literal == nil {
+				t.Errorf("[%d] - Array literal should not be nil", i)
+			} else if len(arrayLiteral.Literal) != expected[i].literalLen {
+				t.Errorf("[%d] - Array literal length not correct, expected %d, got %d", i, expected[i].literalLen, len(arrayLiteral.Literal))
+			}
+		} else {
+			if len(arrayLiteral.Literal) > 0 {
+				t.Errorf("[%d] - Array literal should be empty for declaration without initialization", i)
+			}
+		}
+	}
+}
