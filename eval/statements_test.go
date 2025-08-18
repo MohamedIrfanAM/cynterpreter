@@ -772,3 +772,119 @@ func TestForStatement(t *testing.T) {
 		}
 	}
 }
+
+func TestArrayDeclarationStatement(t *testing.T) {
+	tests := []struct {
+		input      string
+		varName    string
+		dataType   obj.ObjType
+		length     int
+		valueCount int
+	}{
+		{
+			input:      "int arr[5] = {1, 2, 3, 4, 5};",
+			varName:    "arr",
+			dataType:   obj.INTEGER_OBJ,
+			length:     5,
+			valueCount: 5,
+		},
+		{
+			input:      "float nums[3] = {1.5, 2.7, 3.14};",
+			varName:    "nums",
+			dataType:   obj.FLOAT_OBJ,
+			length:     3,
+			valueCount: 3,
+		},
+		{
+			input:      "bool flags[2] = {true, false};",
+			varName:    "flags",
+			dataType:   obj.BOOLEAN_OBJ,
+			length:     2,
+			valueCount: 2,
+		},
+		{
+			input:      "char letters[4] = {'a', 'b', 'c', 'd'};",
+			varName:    "letters",
+			dataType:   obj.CHAR_OBJ,
+			length:     4,
+			valueCount: 4,
+		},
+		{
+			input:      "string words[2] = {\"hello\", \"world\"};",
+			varName:    "words",
+			dataType:   obj.STRING_OBJ,
+			length:     2,
+			valueCount: 2,
+		},
+		{
+			input:      "int empty[10];",
+			varName:    "empty",
+			dataType:   obj.INTEGER_OBJ,
+			length:     10,
+			valueCount: 0,
+		},
+	}
+
+	for i, tt := range tests {
+		env := obj.NewEnv()
+		p := parser.New(tt.input)
+		program := p.ParseProgram()
+
+		if len(program.Statements) != 1 {
+			t.Fatalf("[%d] Expected 1 statement, got %d", i, len(program.Statements))
+		}
+
+		stmnt, ok := program.Statements[0].(*ast.DeclarationStatement)
+		if !ok {
+			t.Fatalf("[%d] - Not valid statement, expected *ast.DeclarationStatement got %T", i, stmnt)
+		}
+
+		result := Eval(stmnt, env)
+		if result.Type() == obj.ERROR_OBJ {
+			t.Fatalf("[%d] - Evaluation error: %s", i, result.String())
+		}
+
+		storedObj, exists := env.GetVar(tt.varName)
+		if !exists {
+			t.Fatalf("[%d] - Array %s not found in environment", i, tt.varName)
+		}
+
+		arrayObj, ok := storedObj.(*obj.ArrayObject)
+		if !ok {
+			t.Fatalf("[%d] - Expected ArrayObject, got %T", i, storedObj)
+		}
+
+		if arrayObj.DataType != tt.dataType {
+			t.Errorf("[%d] - Expected data type %s, got %s", i, tt.dataType, arrayObj.DataType)
+		}
+
+		if arrayObj.Length != tt.length {
+			t.Errorf("[%d] - Expected length %d, got %d", i, tt.length, arrayObj.Length)
+		}
+
+		if len(arrayObj.Vals) != tt.valueCount {
+			t.Errorf("[%d] - Expected %d values, got %d", i, tt.valueCount, len(arrayObj.Vals))
+		}
+
+		for j, val := range arrayObj.Vals {
+			if val.Type() != tt.dataType {
+				t.Errorf("[%d] - Value[%d] expected type %s, got %s", i, j, tt.dataType, val.Type())
+			}
+		}
+	}
+
+	env := obj.NewEnv()
+	input := "int test[5] = {1, 2, 3, 4, 5}; int test[3] = {1, 2, 3};"
+	p := parser.New(input)
+	program := p.ParseProgram()
+
+	result1 := Eval(program.Statements[0], env)
+	if result1.Type() == obj.ERROR_OBJ {
+		t.Fatalf("First array declaration should succeed: %s", result1.String())
+	}
+
+	result2 := Eval(program.Statements[1], env)
+	if result2.Type() != obj.ERROR_OBJ {
+		t.Fatalf("Expected redeclaration error for array, got %T", result2)
+	}
+}

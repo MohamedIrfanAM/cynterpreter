@@ -391,3 +391,15 @@ func evalCallExpression(ce *ast.CallExpression, env *obj.Environment) obj.Object
 	}
 	return returnVal.Return
 }
+
+func evalArrayValExpressions(exps []ast.Expression, env *obj.Environment, objType obj.ObjType) ([]obj.Object, bool) {
+	var objs []obj.Object
+	for _, exp := range exps {
+		result := Eval(exp, env)
+		if result.Type() != objType {
+			return objs, false
+		}
+		objs = append(objs, result)
+	}
+	return objs, true
+}

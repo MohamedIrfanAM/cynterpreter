@@ -21,6 +21,7 @@ const (
 	FUNCTION_OBJ ObjType = "FUNCTION_OBJ"
 	RETURN_OBJ   ObjType = "RETURN_OBJ"
 	RESULTS_OBJ  ObjType = "RESULTS_OBJ"
+	ARRAY_OBJ    ObjType = "ARRAY_OBJ"
 )
 
 var (
@@ -246,5 +247,28 @@ func GetFunctionObject(returnType ObjType, fl *ast.FunctionLiteral) Object {
 		ReturnType: returnType,
 		Block:      fl.Block,
 		Params:     fl.Params,
+	}
+}
+
+// Array Object
+type ArrayObject struct {
+	DataType ObjType
+	Length   int
+	Vals     []Object
+}
+
+func (arr *ArrayObject) Type() ObjType {
+	return ARRAY_OBJ
+}
+
+func (arr *ArrayObject) String() string {
+	return ""
+}
+
+func GetArrayObject(dataType ObjType, length int, vals []Object) Object {
+	return &ArrayObject{
+		DataType: dataType,
+		Length:   length,
+		Vals:     vals,
 	}
 }

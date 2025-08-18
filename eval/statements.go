@@ -47,6 +47,16 @@ func evalDeclarationStatement(ls *ast.DeclarationStatement, env *obj.Environment
 		functionObj := obj.GetFunctionObject(returnType, fl)
 		env.SetVar(ls.Identifier.Value, functionObj)
 		return obj.NULL
+	} else if arr, ok := ls.Literal.(*ast.ArrayDeclaration); ok {
+		arrType := obj.GetObjectType(ls.Type)
+		vals, ok := evalArrayValExpressions(arr.Literal, env, arrType)
+		if !ok {
+			return obj.NewError(fmt.Errorf("type error: all array values are not of the type %s", arrType))
+		}
+		arrObject := obj.GetArrayObject(arrType, arr.Length, vals)
+		env.SetVar(ls.Identifier.Value, arrObject)
+		return obj.NULL
+
 	} else if obj.GetObjectType(ls.Type) == val.Type() {
 		env.SetVar(ls.Identifier.Value, val)
 		return obj.NULL
