@@ -910,3 +910,141 @@ func TestArrayDeclarationStatement(t *testing.T) {
 		t.Fatalf("Expected redeclaration error for array, got %T", result2)
 	}
 }
+
+func TestArrayAssignmentStatement(t *testing.T) {
+	tests := []struct {
+		declaration string
+		assignment  string
+		arrayName   string
+		index       int
+		expectedVal interface{}
+	}{
+		{"int arr[3] = {10, 20, 30};", "arr[0] = 99;", "arr", 0, int64(99)},
+		{"int arr[3] = {10, 20, 30};", "arr[2] = 77;", "arr", 2, int64(77)},
+		{"float nums[4] = {1.5, 2.7, 3.14, 4.2};", "nums[1] = 5.5;", "nums", 1, 5.5},
+		{"bool flags[2] = {true, false};", "flags[0] = false;", "flags", 0, false},
+		{"bool flags[2] = {true, false};", "flags[1] = true;", "flags", 1, true},
+		{"char letters[4] = {'a', 'b', 'c', 'd'};", "letters[2] = 'z';", "letters", 2, byte('z')},
+		{"string words[3] = {\"hello\", \"world\", \"test\"};", "words[0] = \"modified\";", "words", 0, "modified"},
+		{"string words[3] = {\"hello\", \"world\", \"test\"};", "words[2] = \"changed\";", "words", 2, "changed"},
+		{"int zero[5] = {0, 0, 0, 0, 0};", "zero[3] = 42;", "zero", 3, int64(42)},
+		{"float values[3] = {1.0, 2.0, 3.0};", "values[0] = -1.5;", "values", 0, -1.5},
+	}
+
+	for i, tt := range tests {
+		env := obj.NewEnv()
+
+		declP := parser.New(tt.declaration)
+		declProgram := declP.ParseProgram()
+
+		if len(declProgram.Statements) != 1 {
+			t.Fatalf("[%d] Expected 1 declaration statement, got %d", i, len(declProgram.Statements))
+		}
+
+		declResult := Eval(declProgram.Statements[0], env)
+		if declResult.Type() == obj.ERROR_OBJ {
+			t.Fatalf("[%d] - Declaration error: %s", i, declResult.String())
+		}
+
+		assignP := parser.New(tt.assignment)
+		assignProgram := assignP.ParseProgram()
+
+		if len(assignProgram.Statements) != 1 {
+			t.Fatalf("[%d] Expected 1 assignment statement, got %d", i, len(assignProgram.Statements))
+		}
+
+		stmnt, ok := assignProgram.Statements[0].(*ast.AssignmentStatement)
+		if !ok {
+			t.Fatalf("[%d] - Not valid statement, expected *ast.AssignmentStatement got %T", i, stmnt)
+		}
+
+		result := Eval(stmnt, env)
+		if result.Type() == obj.ERROR_OBJ {
+			t.Fatalf("[%d] - Assignment error: %s", i, result.String())
+		}
+
+		modifiedVal, err := env.GetIndexVar(tt.arrayName, tt.index)
+		if err != nil {
+			t.Fatalf("[%d] - GetIndexVar error: %s", i, err.Error())
+		}
+
+		switch expected := tt.expectedVal.(type) {
+		case int64:
+			intObj, ok := modifiedVal.(*obj.IntegerObject)
+			if !ok {
+				t.Fatalf("[%d] - Expected IntegerObject, got %T", i, modifiedVal)
+			}
+			if intObj.Value != expected {
+				t.Errorf("[%d] - Expected %d, got %d", i, expected, intObj.Value)
+			}
+		case float64:
+			floatObj, ok := modifiedVal.(*obj.FloatObject)
+			if !ok {
+				t.Fatalf("[%d] - Expected FloatObject, got %T", i, modifiedVal)
+			}
+			if floatObj.Value != expected {
+				t.Errorf("[%d] - Expected %f, got %f", i, expected, floatObj.Value)
+			}
+		case bool:
+			boolObj, ok := modifiedVal.(*obj.BooleanObject)
+			if !ok {
+				t.Fatalf("[%d] - Expected BooleanObject, got %T", i, modifiedVal)
+			}
+			if boolObj.Value != expected {
+				t.Errorf("[%d] - Expected %t, got %t", i, expected, boolObj.Value)
+			}
+		case byte:
+			charObj, ok := modifiedVal.(*obj.CharObject)
+			if !ok {
+				t.Fatalf("[%d] - Expected CharObject, got %T", i, modifiedVal)
+			}
+			if charObj.Value != expected {
+				t.Errorf("[%d] - Expected %c, got %c", i, expected, charObj.Value)
+			}
+		case string:
+			stringObj, ok := modifiedVal.(*obj.StringObject)
+			if !ok {
+				t.Fatalf("[%d] - Expected StringObject, got %T", i, modifiedVal)
+			}
+			if stringObj.Value != expected {
+				t.Errorf("[%d] - Expected %s, got %s", i, expected, stringObj.Value)
+			}
+		}
+	}
+
+	env := obj.NewEnv()
+
+	// Test assignment to undeclared array
+	p := parser.New("undeclaredArr[0] = 10;")
+	program := p.ParseProgram()
+	result := Eval(program.Statements[0], env)
+	if result.Type() != obj.ERROR_OBJ {
+		t.Fatalf("Expected error for undeclared array assignment, got %T", result)
+	}
+
+	// Test out of bounds assignment
+	env = obj.NewEnv()
+	declP := parser.New("int arr[3] = {1, 2, 3};")
+	declProgram := declP.ParseProgram()
+	Eval(declProgram.Statements[0], env)
+
+	assignP := parser.New("arr[5] = 10;")
+	assignProgram := assignP.ParseProgram()
+	result = Eval(assignProgram.Statements[0], env)
+	if result.Type() != obj.ERROR_OBJ {
+		t.Fatalf("Expected error for out of bounds assignment, got %T", result)
+	}
+
+	// Test type mismatch assignment
+	env = obj.NewEnv()
+	declP = parser.New("int arr[3] = {1, 2, 3};")
+	declProgram = declP.ParseProgram()
+	Eval(declProgram.Statements[0], env)
+
+	assignP = parser.New("arr[0] = \"string\";")
+	assignProgram = assignP.ParseProgram()
+	result = Eval(assignProgram.Statements[0], env)
+	if result.Type() != obj.ERROR_OBJ {
+		t.Fatalf("Expected type mismatch error, got %T", result)
+	}
+}
