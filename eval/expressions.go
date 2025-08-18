@@ -17,11 +17,16 @@ func evalIdentifierExpression(ident *ast.IdentifierExpression, env *obj.Environm
 }
 
 func evalArrayExpression(arr *ast.ArrayExpression, env *obj.Environment) obj.Object {
-	val, err := env.GetIndexVar(arr.Identifer.Value, arr.Index)
+	expObj := Eval(arr.Index, env)
+	expInt, ok := expObj.(*obj.IntegerObject)
+	if !ok {
+		return obj.NewError(fmt.Errorf("invalid index type, expected an integer, got %s", expObj.Type()))
+	}
+	val, err := env.GetIndexVar(arr.Identifer.Value, int(expInt.Value))
 	if err == nil {
 		return val
 	}
-	return &obj.ErrorObject{Error: err}
+	return obj.NewError(err)
 }
 
 func evalPrefixExpression(expr *ast.PrefixExpression, env *obj.Environment) obj.Object {

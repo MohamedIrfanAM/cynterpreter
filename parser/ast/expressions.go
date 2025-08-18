@@ -253,7 +253,7 @@ func (arr ArrayDeclaration) String() string {
 type ArrayExpression struct {
 	Token     token.Token
 	Identifer *IdentifierExpression
-	Index     int
+	Index     Expression
 }
 
 func (arr ArrayExpression) TokenLexeme() string {

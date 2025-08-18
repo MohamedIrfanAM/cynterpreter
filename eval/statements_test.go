@@ -319,8 +319,6 @@ func TestVariableUsage(t *testing.T) {
 		{"bool flag = true; flag;", true},
 		{"string name = \"John\"; name;", "John"},
 		{"char ch = 'A'; ch;", byte('A')},
-
-		// Variable operations
 		{"int a = 10; int b = 20; a + b;", 30},
 		{"int x = 5; int y = 2; x * y;", 10},
 		{"float pi = 3.14; float radius = 2.0; pi * radius;", 6.28},
@@ -328,17 +326,41 @@ func TestVariableUsage(t *testing.T) {
 		{"bool isActive = true; bool isValid = false; isActive && isValid;", false},
 		{"int score1 = 85; int score2 = 92; score1 > score2;", false},
 		{"float temp = 25.5; float threshold = 30.0; temp < threshold;", true},
-
-		// Variable reassignment
 		{"int count = 5; count = count + 1; count;", 6},
 		{"int count; count = 10; count;", 10},
 		{"int value = 10; value = value * 2; value;", 20},
 		{"string message = \"Hello\"; message = message + \"!\"; message;", "Hello!"},
-
-		// Mixed type operations
 		{"int intVal = 5; float floatVal = 2.5; intVal + floatVal;", 7.5},
 		{"bool result = false; int num = 0; result || num;", false},
 		{"char letter = 'Z'; string word = \"oo\"; letter;", byte('Z')},
+		{"int arr[3] = {10, 20, 30}; arr[0];", 10},
+		{"int arr[3] = {10, 20, 30}; arr[1];", 20},
+		{"int arr[3] = {10, 20, 30}; arr[2];", 30},
+		{"float nums[4] = {1.5, 2.7, 3.14, 4.2}; nums[0];", 1.5},
+		{"float nums[4] = {1.5, 2.7, 3.14, 4.2}; nums[3];", 4.2},
+		{"bool flags[2] = {true, false}; flags[0];", true},
+		{"bool flags[2] = {true, false}; flags[1];", false},
+		{"char letters[4] = {'a', 'b', 'c', 'd'}; letters[0];", byte('a')},
+		{"char letters[4] = {'a', 'b', 'c', 'd'}; letters[2];", byte('c')},
+		{"string words[3] = {\"hello\", \"world\", \"test\"}; words[0];", "hello"},
+		{"string words[3] = {\"hello\", \"world\", \"test\"}; words[2];", "test"},
+		{"int arr[3] = {5, 10, 15}; int i = 1; arr[i];", 10},
+		{"int numbers[4] = {1, 2, 3, 4}; int idx = 0; numbers[idx] + numbers[idx + 1];", 3},
+		{"float values[3] = {2.5, 5.0, 7.5}; int pos = 2; values[pos];", 7.5},
+		{"int data[3] = {100, 200, 300}; data[0] + data[1];", 300},
+		{"int arr[2] = {7, 14}; arr[1] * 2;", 28},
+		{"string text = \"hello\"; text[0];", byte('h')},
+		{"string text = \"hello\"; text[1];", byte('e')},
+		{"string text = \"hello\"; text[4];", byte('o')},
+		{"string word = \"world\"; word[0];", byte('w')},
+		{"string word = \"world\"; word[4];", byte('d')},
+		{"string message = \"test\"; int i = 2; message[i];", byte('s')},
+		{"string str = \"abc\"; str[0];", byte('a')},
+		{"string str = \"abc\"; str[2];", byte('c')},
+		{"int arr[5] = {10, 20, 30, 40, 50}; int base = 1; arr[base + 1];", 30},
+		{"float nums[4] = {1.1, 2.2, 3.3, 4.4}; nums[2 * 1];", 3.3},
+		{"string text = \"programming\"; text[5 + 0];", byte('a')},
+		{"bool flags[3] = {true, false, true}; int x = 2; flags[x - 1];", false},
 	}
 
 	for i, tt := range tests {

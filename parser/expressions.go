@@ -308,12 +308,8 @@ func (p *Parser) parseArrayExpression(arrIdentifier ast.Expression) ast.Expressi
 		Identifer: ident,
 	}
 	p.nextToken()
-	if p.curTokenIs(token.INT_LITERAL) {
-		len, _ := strconv.ParseInt(p.curToken.Lexeme, 10, 32)
-		expr.Index = int(len)
-		p.expectPeekToken(token.RBRACK)
-	} else {
-		p.errors = append(p.errors, fmt.Errorf("missing expected integer index as array index"))
-	}
+	indexExp := p.parseExpression(LOWEST)
+	expr.Index = indexExp
+	p.expectPeekToken(token.RBRACK)
 	return expr
 }
