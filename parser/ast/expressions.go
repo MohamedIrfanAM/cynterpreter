@@ -97,6 +97,7 @@ func (il *IdentifierExpression) TokenLexeme() string {
 	return il.Token.Lexeme
 }
 func (il *IdentifierExpression) expressionNode() {}
+func (il *IdentifierExpression) identifierNode() {}
 
 func (il *IdentifierExpression) String() string {
 	return il.Value
@@ -260,6 +261,8 @@ func (arr ArrayExpression) TokenLexeme() string {
 	return arr.Token.Lexeme
 }
 func (arr ArrayExpression) expressionNode() {}
+func (arr ArrayExpression) identifierNode() {}
+
 func (arr ArrayExpression) String() string {
 	var str strings.Builder
 	str.WriteString(arr.Identifer.Value + "[" + fmt.Sprint(arr.Index) + "]")

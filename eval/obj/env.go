@@ -1,6 +1,8 @@
 package obj
 
-import "fmt"
+import (
+	"fmt"
+)
 
 type Environment struct {
 	memory map[string]Object
@@ -35,6 +37,36 @@ func (env *Environment) GetIndexVar(varname string, index int) (Object, error) {
 		return &CharObject{Value: val.Value[index]}, nil
 	}
 	return object, nil
+}
+
+func (env *Environment) SetIndexVar(varname string, index int, updateVal Object) error {
+	object, ok := env.memory[varname]
+	if !ok {
+		return fmt.Errorf("%s variable doesn't exist", varname)
+	}
+	switch val := object.(type) {
+	case *ArrayObject:
+		if index >= val.Length {
+			return fmt.Errorf("invalid index, index greater than lenghth of the string %d", val.Length)
+		}
+		if val.DataType != updateVal.Type() {
+			return fmt.Errorf("type error,cannot assign %s to %s", object.Type(), val.DataType)
+		}
+		val.Vals[index] = updateVal
+		return nil
+	case *StringObject:
+		if index >= len(val.Value) {
+			return fmt.Errorf("invalid index, index greater than lenghth of the string %d", len(val.Value))
+		}
+		newChar, ok := updateVal.(*CharObject)
+		if !ok {
+			return fmt.Errorf("expectecd a char literal to assign to string indexed")
+		}
+		b := []byte(val.Value)
+		b[index] = newChar.Value
+		val.Value = string(b)
+	}
+	return nil
 }
 
 func (env *Environment) GetVar(varname string) (Object, bool) {

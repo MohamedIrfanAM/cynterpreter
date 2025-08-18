@@ -69,14 +69,28 @@ func evalAssignmentStatement(ls *ast.AssignmentStatement, env *obj.Environment) 
 	if val.Type() == obj.ERROR_OBJ {
 		return val
 	}
-	varObj, ok := env.GetVar(ls.Identifier.Value)
-	if !ok {
-		return obj.NewError(fmt.Errorf("variable not declared: variable %s not declared before, for assigment", ls.Identifier))
+	switch ident := ls.Identifier.(type) {
+	case *ast.IdentifierExpression:
+		varObj, ok := env.GetVar(ident.Value)
+		if !ok {
+			return obj.NewError(fmt.Errorf("variable not declared: variable %s not declared before, for assigment", ls.Identifier))
+		}
+		if varObj.Type() != val.Type() {
+			return obj.NewError(fmt.Errorf("type error: invalid assigment type cannot assign %s to %s", val.Type(), varObj.Type()))
+		}
+		env.SetVar(ident.Value, val)
+	case *ast.ArrayExpression:
+		_, ok := env.GetVar(ident.Identifer.Value)
+		if !ok {
+			return obj.NewError(fmt.Errorf("variable not declared: variable %s not declared before, for assigment", ls.Identifier))
+		}
+		expObj := Eval(ident.Index, env)
+		expInt, ok := expObj.(*obj.IntegerObject)
+		if !ok {
+			return obj.NewError(fmt.Errorf("invalid index type, expected an integer, got %s", expObj.Type()))
+		}
+		env.SetIndexVar(ident.Identifer.Value, int(expInt.Value), val)
 	}
-	if varObj.Type() != val.Type() {
-		return obj.NewError(fmt.Errorf("type error: invalid assigment type cannot assign %s to %s", val.Type(), varObj.Type()))
-	}
-	env.SetVar(ls.Identifier.Value, val)
 	return obj.NULL
 }
 

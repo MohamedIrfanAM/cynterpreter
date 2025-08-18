@@ -14,11 +14,7 @@ func (p *Parser) ParseStatement() ast.Statement {
 	case token.IF:
 		return p.parseIfStatement()
 	case token.IDENTIFIER:
-		if token.IsAssignmentOp(p.peekToken.TokenType) {
-			return p.parseAssignmentStatement(true)
-		} else {
-			return p.parseExpressionStatement()
-		}
+		return p.parseIdentifierStatement()
 	case token.RETURN:
 		return p.parseReturnStatement()
 	case token.WHILE:
@@ -26,13 +22,25 @@ func (p *Parser) ParseStatement() ast.Statement {
 	case token.FOR:
 		return p.parseForStatement()
 	default:
-		return p.parseExpressionStatement()
+		return p.parseExpressionStatement(p.curToken, nil, true)
 	}
 }
 
-func (p *Parser) parseExpressionStatement() *ast.ExpressionStatement {
+func (p *Parser) parseIdentifierStatement() ast.Statement {
 	tkn := p.curToken
-	exp := p.parseExpression(LOWEST)
+	ident := p.parseExpression(LOWEST)
+	if token.IsAssignmentOp(p.peekToken.TokenType) {
+		return p.parseAssignmentStatement(tkn, ident, true, false)
+	} else {
+		return p.parseExpressionStatement(tkn, ident, false)
+	}
+}
+
+func (p *Parser) parseExpressionStatement(tkn token.Token, exp ast.Expression, parse bool) *ast.ExpressionStatement {
+	if parse {
+		tkn = p.curToken
+		exp = p.parseExpression(LOWEST)
+	}
 	p.expectPeekToken(token.SEMCOL)
 	return &ast.ExpressionStatement{
 		Token:      tkn,
@@ -68,12 +76,14 @@ func (p *Parser) parseDeclarationStatement() *ast.DeclarationStatement {
 	return stmnt
 }
 
-func (p *Parser) parseAssignmentStatement(semCol bool) *ast.AssignmentStatement {
-	tkn := p.curToken
-	ident := p.parseIdentifierExpression()
+func (p *Parser) parseAssignmentStatement(tkn token.Token, ident ast.Expression, semCol bool, parse bool) *ast.AssignmentStatement {
+	if parse {
+		tkn = p.curToken
+		ident = p.parseExpression(LOWEST)
+	}
 	var stmnt = &ast.AssignmentStatement{
 		Token:      tkn,
-		Identifier: ident.(*ast.IdentifierExpression),
+		Identifier: ident.(ast.IdentifierNode),
 	}
 	p.nextToken()
 	if p.curTokenIs(token.SEMCOL) {
@@ -156,7 +166,7 @@ func (p *Parser) parseForStatement() *ast.ForStatement {
 	p.expectPeekToken(token.LPAREN)
 	p.nextToken()
 	if p.curTokenIs(token.IDENTIFIER) {
-		stmnt.InitializationStatement = p.parseAssignmentStatement(true)
+		stmnt.InitializationStatement = p.parseAssignmentStatement(p.curToken, nil, true, true)
 	} else if token.IsDatatype(p.curToken.TokenType) {
 		stmnt.InitializationStatement = p.parseDeclarationStatement()
 	} else if p.curTokenIs(token.SEMCOL) {
@@ -168,7 +178,7 @@ func (p *Parser) parseForStatement() *ast.ForStatement {
 	stmnt.Condition = p.parseExpression(LOWEST)
 	p.expectPeekToken(token.SEMCOL)
 	p.nextToken()
-	stmnt.Increment = p.parseAssignmentStatement(false)
+	stmnt.Increment = p.parseAssignmentStatement(p.curToken, nil, false, true)
 	p.expectPeekToken(token.RPAREN)
 	p.expectPeekToken(token.LBRACE)
 	stmnt.Block = p.parseBlockStatement()

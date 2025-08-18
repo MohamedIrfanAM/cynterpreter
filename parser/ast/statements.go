@@ -110,9 +110,13 @@ func (ifs *IfStatement) String() string {
 }
 
 // Assignment Statement
+type IdentifierNode interface {
+	Expression
+	identifierNode()
+}
 type AssignmentStatement struct {
 	Token      token.Token
-	Identifier *IdentifierExpression
+	Identifier IdentifierNode
 	Literal    Expression
 }
 
@@ -126,7 +130,7 @@ func (as *AssignmentStatement) initializationStatement() {}
 func (as *AssignmentStatement) String() string {
 	var str strings.Builder
 
-	str.WriteString(as.Identifier.Value)
+	str.WriteString(as.Identifier.String())
 	if as.Literal != nil {
 		str.WriteString(" = " + as.Literal.String())
 	}
