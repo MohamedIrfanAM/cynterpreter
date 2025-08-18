@@ -16,6 +16,14 @@ func evalIdentifierExpression(ident *ast.IdentifierExpression, env *obj.Environm
 	return val
 }
 
+func evalArrayExpression(arr *ast.ArrayExpression, env *obj.Environment) obj.Object {
+	val, err := env.GetIndexVar(arr.Identifer.Value, arr.Index)
+	if err == nil {
+		return val
+	}
+	return &obj.ErrorObject{Error: err}
+}
+
 func evalPrefixExpression(expr *ast.PrefixExpression, env *obj.Environment) obj.Object {
 	val := Eval(expr.Exp, env)
 	switch expr.Token.TokenType {

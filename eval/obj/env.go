@@ -1,5 +1,7 @@
 package obj
 
+import "fmt"
+
 type Environment struct {
 	memory map[string]Object
 }
@@ -13,6 +15,26 @@ func NewEnv() *Environment {
 
 func (env *Environment) SetVar(varname string, val Object) {
 	env.memory[varname] = val
+}
+
+func (env *Environment) GetIndexVar(varname string, index int) (Object, error) {
+	object, ok := env.memory[varname]
+	if !ok {
+		return nil, fmt.Errorf("%s variable doesn't exist", varname)
+	}
+	switch val := object.(type) {
+	case *ArrayObject:
+		if index >= val.Length {
+			return nil, fmt.Errorf("invalid index, index greater than lenghth of the string %d", val.Length)
+		}
+		return val.Vals[index], nil
+	case *StringObject:
+		if index >= len(val.Value) {
+			return nil, fmt.Errorf("invalid index, index greater than lenghth of the string %d", len(val.Value))
+		}
+		return &CharObject{Value: val.Value[index]}, nil
+	}
+	return object, nil
 }
 
 func (env *Environment) GetVar(varname string) (Object, bool) {

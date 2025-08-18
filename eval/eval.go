@@ -27,6 +27,8 @@ func Eval(node ast.Node, env *obj.Environment) obj.Object {
 		return evalCallExpression(node, env)
 	case *ast.IdentifierExpression:
 		return evalIdentifierExpression(node, env)
+	case *ast.ArrayExpression:
+		return evalArrayExpression(node, env)
 	case *ast.IntegerLiteral:
 		return &obj.IntegerObject{Value: node.Value}
 	case *ast.BoolLiteral:
