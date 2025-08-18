@@ -89,7 +89,10 @@ func evalAssignmentStatement(ls *ast.AssignmentStatement, env *obj.Environment) 
 		if !ok {
 			return obj.NewError(fmt.Errorf("invalid index type, expected an integer, got %s", expObj.Type()))
 		}
-		env.SetIndexVar(ident.Identifer.Value, int(expInt.Value), val)
+		err := env.SetIndexVar(ident.Identifer.Value, int(expInt.Value), val)
+		if err != nil {
+			return obj.NewError(err)
+		}
 	}
 	return obj.NULL
 }
