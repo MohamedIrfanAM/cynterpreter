@@ -1,6 +1,7 @@
 package parser
 
 import (
+	"fmt"
 	"strconv"
 	"testing"
 
@@ -734,7 +735,7 @@ func testArrayExpression(t *testing.T, expression ast.Expression, expectedIdenti
 		t.Errorf("Identifier value not correct, Expected - %s, Got - %s", expectedIdentifier, expr.Identifer.Value)
 	}
 
-	if expr.Index != expectedIndex {
+	if expr.Index.String() != fmt.Sprint(expectedIndex) {
 		t.Errorf("Index value not correct, Expected - %d, Got - %d", expectedIndex, expr.Index)
 	}
 }
