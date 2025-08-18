@@ -18,6 +18,7 @@ const (
 	PRODUCTDEVIDE // * /
 	PREFIX        // -x
 	CALL          // function calls
+	ARRAY         // array index
 )
 
 var precedences = map[token.TokenType]int{
@@ -33,6 +34,7 @@ var precedences = map[token.TokenType]int{
 	token.GT:      LESSGREATER,
 	token.GE:      LESSGREATER,
 	token.LPAREN:  CALL,
+	token.LBRACK:  ARRAY,
 	token.AND:     AND,
 	token.OR:      OR,
 }
@@ -252,7 +254,7 @@ func (p *Parser) parseArrayDeclaration(tkn token.Token, arrIdentifier *ast.Ident
 	if p.curTokenIs(token.INT_LITERAL) {
 		len, _ := strconv.ParseInt(p.curToken.Lexeme, 10, 32)
 		expr.Length = int(len)
-		p.nextToken()
+		p.expectPeekToken(token.RBRACK)
 	} else if !p.curTokenIs(token.RBRACK) {
 		p.errors = append(p.errors, fmt.Errorf("invalid token as array length found"))
 		return nil
@@ -297,4 +299,21 @@ func (p *Parser) parseArrayLiteral() []ast.Expression {
 		return nil
 	}
 	return vals
+}
+
+func (p *Parser) parseArrayExpression(arrIdentifier ast.Expression) ast.Expression {
+	ident, _ := arrIdentifier.(*ast.IdentifierExpression)
+	expr := &ast.ArrayExpression{
+		Token:     p.curToken,
+		Identifer: ident,
+	}
+	p.nextToken()
+	if p.curTokenIs(token.INT_LITERAL) {
+		len, _ := strconv.ParseInt(p.curToken.Lexeme, 10, 32)
+		expr.Index = int(len)
+		p.expectPeekToken(token.RBRACK)
+	} else {
+		p.errors = append(p.errors, fmt.Errorf("missing expected integer index as array index"))
+	}
+	return expr
 }

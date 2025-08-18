@@ -59,6 +59,7 @@ func New(input string) *Parser {
 	p.registerInfixFunc(token.GT, p.parseInfixExpression)
 	p.registerInfixFunc(token.GE, p.parseInfixExpression)
 	p.registerInfixFunc(token.LPAREN, p.parseCallExpression)
+	p.registerInfixFunc(token.LBRACK, p.parseArrayExpression)
 	p.registerInfixFunc(token.AND, p.parseInfixExpression)
 	p.registerInfixFunc(token.OR, p.parseInfixExpression)
 

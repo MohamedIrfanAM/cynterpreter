@@ -248,3 +248,20 @@ func (arr ArrayDeclaration) String() string {
 	str.WriteString("}")
 	return str.String()
 }
+
+// Array index Node
+type ArrayExpression struct {
+	Token     token.Token
+	Identifer *IdentifierExpression
+	Index     int
+}
+
+func (arr ArrayExpression) TokenLexeme() string {
+	return arr.Token.Lexeme
+}
+func (arr ArrayExpression) expressionNode() {}
+func (arr ArrayExpression) String() string {
+	var str strings.Builder
+	str.WriteString(arr.Identifer.Value + "[" + fmt.Sprint(arr.Index) + "]")
+	return str.String()
+}

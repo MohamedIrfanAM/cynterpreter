@@ -674,3 +674,67 @@ func TestExpressions(t *testing.T) {
 		}
 	}
 }
+
+func TestArrayExpressions(t *testing.T) {
+	input := `
+	arr[0];
+	data[5];
+	matrix[10];
+	values[123];
+	`
+	tests := []struct {
+		identifier string
+		index      int
+	}{
+		{"arr", 0},
+		{"data", 5},
+		{"matrix", 10},
+		{"values", 123},
+	}
+
+	p := New(input)
+
+	program := p.ParseProgram()
+
+	if len(p.Errors()) != 0 {
+		for _, err := range p.Errors() {
+			t.Errorf("Parser Error: %s\n", err.Error())
+		}
+		t.Fatal("Exiting now!")
+	}
+
+	statements := program.Statements
+
+	if len(statements) != len(tests) {
+		t.Fatalf("Parser Error: Length of statements not correct, expected %v, got %v", len(tests), len(statements))
+	}
+
+	for i, statement := range statements {
+		stmnt, ok := statement.(*ast.ExpressionStatement)
+		if !ok {
+			t.Errorf("Statement type not matching, expected ast.ExpressionStatement, got %T", stmnt)
+		}
+
+		testArrayExpression(t, stmnt.Expression, tests[i].identifier, tests[i].index)
+	}
+}
+
+func testArrayExpression(t *testing.T, expression ast.Expression, expectedIdentifier string, expectedIndex int) {
+	expr, ok := expression.(*ast.ArrayExpression)
+	if !ok {
+		t.Errorf("Expression is not of expected type ast.ArrayExpression, got %T", expression)
+		return
+	}
+
+	if expr.Token.TokenType != token.LBRACK {
+		t.Errorf("Token type is not LBRACK")
+	}
+
+	if expr.Identifer.Value != expectedIdentifier {
+		t.Errorf("Identifier value not correct, Expected - %s, Got - %s", expectedIdentifier, expr.Identifer.Value)
+	}
+
+	if expr.Index != expectedIndex {
+		t.Errorf("Index value not correct, Expected - %d, Got - %d", expectedIndex, expr.Index)
+	}
+}
